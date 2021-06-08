@@ -24,7 +24,7 @@ Please note these functions are available for all distributions, except for the 
 ```Nim
 let normal_dist = initNormalDistribution(0.0, 1.0)
 discard normal_dist.mean()		# Mean
-discard normal_dist.median()	# Median
+discard normal_dist.median()		# Median
 discard normal_dist.mode()		# Mode
 discard normal_dist.pdf()		# Probability density function (use .pmf() for discrete distributions)
 discard normal_dist.cdf()		# Cumulative density function
