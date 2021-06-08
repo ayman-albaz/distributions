@@ -50,12 +50,12 @@ All functions in this library are accurate up-to 14 decimal places (float64).
 
 
 ## Performance
-This library was written with accuracy as a top priority as opposed to performance, however almost all implementations here are faster than SciPy's implementations and equal to, slower, or faster than Julia's Special Functions implementations. 
+This library was written with accuracy as a top priority as opposed to performance, however almost all implementations here are faster than SciPy's implementations and equal to, slower, or faster than Julia's distributions implementations. 
 
 
 ## TODO
 List is organized from most important to least important:
-- Add ppf for T-distribution
+- Add ppf for T-distribution and Gamma-distributions
 - Add more functions for each distribution (in this order: random, fit, CF, skewness, etc...)
 - Add more univariate distributions on an as-need-bases
 - Bonus: Add multivariate distributions on an as-need-bases
