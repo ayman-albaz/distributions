@@ -1,15 +1,14 @@
 type
-  Submodule* = object
-    name*: string
+    Submodule* = object
+      name*: string
 
 proc initSubmodule*(): Submodule =
-  ## Initialises a new ``Submodule`` object.
-  Submodule(name: "Anonymous")
+    ## Initialises a new ``Submodule`` object.
+    Submodule(name: "Anonymous")
 
 
 import math
-import math_utils
-import special_functions
+import special_functions/beta
 import utils
 
 
@@ -37,12 +36,28 @@ proc initBinomialDistribution*(n: Positive, p: FractionPositiveFloat): BinomialD
     result.p = p
 
 
+proc mean*(binomial_dist: BinomialDistribution): float =
+    return binomial_dist.n.float * binomial_dist.p
+
+
+proc median*(binomial_dist: BinomialDistribution): float =
+    return round(binomial_dist.n.float * binomial_dist.p).float
+
+
+proc mode*(binomial_dist: BinomialDistribution): float =
+    return round((binomial_dist.n.float + 1.0) * binomial_dist.p).float
+
+
+proc variance*(binomial_dist: BinomialDistribution): float =
+    return binomial_dist.n.float * binomial_dist.p * (1.0 - binomial_dist.p)
+
+
 proc pmf*(binomial_dist: BinomialDistribution, k: Natural): float =
     #[
         Probability Density Function (PDF) for BinomialDistribution.
         Accurate for up-to 15 decimal place.
     ]#
-    return binomial_coefficient(binomial_dist.n, k).float * pow(binomial_dist.p, k.float) * pow(1.0 - binomial_dist.p, (binomial_dist.n - k).float)
+    return binom(binomial_dist.n, k).float * pow(binomial_dist.p, k.float) * pow(1.0 - binomial_dist.p, (binomial_dist.n - k).float)
 
 
 proc cdf*(binomial_dist: BinomialDistribution, k: Natural): float = 
@@ -50,7 +65,7 @@ proc cdf*(binomial_dist: BinomialDistribution, k: Natural): float =
         Cumulative Density Function (CDF) for BinomialDistribution.
         Accurate for up-to 8 decimal place.
     ]#
-    return regularized_incomplete_beta((binomial_dist.n - k).float, (1 + k).float, 1.0 - binomial_dist.p)
+    return regularized_lower_incomplete_beta((binomial_dist.n - k).float, (1 + k).float, 1.0 - binomial_dist.p)
 
 
 proc sf*(binomial_dist: BinomialDistribution, k: Natural): float =

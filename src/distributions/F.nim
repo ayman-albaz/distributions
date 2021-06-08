@@ -1,14 +1,15 @@
 type
-  Submodule* = object
-    name*: string
+    Submodule* = object
+      name*: string
 
 proc initSubmodule*(): Submodule =
-  ## Initialises a new ``Submodule`` object.
-  Submodule(name: "Anonymous")
+    ## Initialises a new ``Submodule`` object.
+    Submodule(name: "Anonymous")
 
 
 import math
-import special_functions
+import math_utils
+import special_functions/beta
 import utils
 
 
@@ -34,10 +35,25 @@ proc initFDistribution*(df_1, df_2: Positive): FDistribution =
     result.df_2 = df_2
 
 
+proc mean*(f_dist: FDistribution): float =
+    if f_dist.df_2 <= 2: return Inf
+    else: return f_dist.df_2 / (f_dist.df_2 - 2)
+
+
+proc mode*(f_dist: FDistribution): float =
+    if f_dist.df_1 <= 2: return Inf
+    else: return ((f_dist.df_1 - 2) / f_dist.df_1) * (f_dist.df_2 / (f_dist.df_2 + 2))
+
+
+proc variance*(f_dist: FDistribution): float =
+    if f_dist.df_2 <= 4: return Inf
+    else: return 2 * pow2(f_dist.df_2) * (f_dist.df_1 + f_dist.df_2 - 2) / (f_dist.df_1 * pow2(f_dist.df_2 - 2) * (f_dist.df_2 - 4))
+
+
 proc pdf*(f_dist: FDistribution, f: PositiveFloat): float =
     #[
         Probability Density Function (PDF) for FDistribution.
-        Accurate for up-to 15 decimal place.
+        Accurate for up-to 14 decimal place.
     ]#
     let 
         numerator = sqrt(pow(f_dist.df_1.float * f, f_dist.df_1.float) * pow(f_dist.df_2.float, f_dist.df_2.float) / pow(f_dist.df_1.float * f + f_dist.df_2.float, (f_dist.df_1 + f_dist.df_2).float))
@@ -48,16 +64,16 @@ proc pdf*(f_dist: FDistribution, f: PositiveFloat): float =
 proc cdf*(f_dist: FDistribution, f: PositiveFloat): float = 
     #[
         Cumulative Density Function (CDF) for FDistribution.
-        Accurate for up-to 8 decimal place.
+        Accurate for up-to 14 decimal place.
     ]#
-    return regularized_incomplete_beta(f_dist.df_1.float / 2.0, f_dist.df_2.float / 2.0, (f_dist.df_1.float * f) / (f_dist.df_1.float * f + f_dist.df_2.float))
+    return regularized_lower_incomplete_beta(f_dist.df_1.float / 2.0, f_dist.df_2.float / 2.0, (f_dist.df_1.float * f) / (f_dist.df_1.float * f + f_dist.df_2.float))
 
 
 proc sf*(f_dist: FDistribution, f: PositiveFloat): float =
     #[
         Survival function (sf) for FDistribution.
         Equivalent to 1 - cdf.
-        Accurate for up-to 8 decimal place.
+        Accurate for up-to 14 decimal place.
     ]#
     return 1 - f_dist.cdf(f)
 
@@ -65,6 +81,6 @@ proc sf*(f_dist: FDistribution, f: PositiveFloat): float =
 proc ppf*(f_dist: FDistribution, p: FractionPositiveFloat): float = 
     #[
         Cumulative Density Function (CDF) for FDistribution.
-        Accurate for up-to 8 decimal place.
+        Accurate for up-to 14 decimal place.
     ]#
     return (f_dist.df_2 / f_dist.df_1) * (1 / inverse_regularized_upper_incomplete_beta(f_dist.df_2.float / 2, f_dist.df_1.float / 2, p) - 1)

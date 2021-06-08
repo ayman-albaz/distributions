@@ -12,9 +12,21 @@ suite "UniformContinuousDistribution":
     teardown:
         echo "\n  RUNTIME: ", getTime() - t0
 
-    test "UniformContinuousDistribution(0.0, 1.0).pdf(0.0)":
+    test "UniformContinuousDistribution(0.0, 1.0).mean()":
         let uniform_continuous_dist = initUniformContinuousDistribution(0.0, 1.0)
-        check uniform_continuous_dist.pdf(0.0).round(15) == 1.0.round(15)
+        check uniform_continuous_dist.mean().round(15) == 0.5.round(15)
+
+    test "UniformContinuousDistribution(0.0, 1.0).median()":
+        let uniform_continuous_dist = initUniformContinuousDistribution(0.0, 1.0)
+        check uniform_continuous_dist.median().round(15) == 0.5.round(15)
+
+    test "UniformContinuousDistribution(0.0, 1.0).mode()":
+        let uniform_continuous_dist = initUniformContinuousDistribution(0.0, 1.0)
+        check uniform_continuous_dist.mode().round(15) == 0.5.round(15)
+
+    test "UniformContinuousDistribution(0.0, 1.0).variance()":
+        let uniform_continuous_dist = initUniformContinuousDistribution(0.0, 1.0)
+        check uniform_continuous_dist.variance().round(15) == 0.08333333333333333.round(15)
 
     test "UniformContinuousDistribution(0.0, 1.0).pdf(1.0)":
         let uniform_continuous_dist = initUniformContinuousDistribution(0.0, 1.0)

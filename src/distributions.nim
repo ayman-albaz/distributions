@@ -1,7 +1,2 @@
-# This is just an example to get you started. A typical library package
-# exports the main API in this file. Note that you cannot rename this file
-# but you can remove it if you wish.
-
-proc add*(x, y: int): int =
-  ## Adds two files together.
-  return x + y
+import distributions/bernoulli, distributions/beta, distributions/binomial, distributions/chi2, distributions/F, distributions/gamma, distributions/negative_binomial, distributions/normal, distributions/poisson, distributions/t, distributions/uniform_continuous, distributions/uniform_discrete,  distributions/utils
+export bernoulli, beta, binomial, chi2, F, gamma, negative_binomial, normal, poisson, t, uniform_continuous, uniform_discrete

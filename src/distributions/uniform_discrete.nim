@@ -1,10 +1,13 @@
 type
-  Submodule* = object
-    name*: string
+    Submodule* = object
+      name*: string
 
 proc initSubmodule*(): Submodule =
-  ## Initialises a new ``Submodule`` object.
-  Submodule(name: "Anonymous")
+    ## Initialises a new ``Submodule`` object.
+    Submodule(name: "Anonymous")
+
+import math_utils
+
 
 {.nanChecks: on, infChecks: on.}
 
@@ -18,6 +21,22 @@ type
 proc initUniformDiscreteDistribution*(a, b: int): UniformDiscreteDistribution = 
     result.a = a
     result.b = b
+
+
+proc mean*(uniform_discrete_dist: UniformDiscreteDistribution): float =
+    return 0.5 * (uniform_discrete_dist.a + uniform_discrete_dist.b).float
+
+
+proc median*(uniform_discrete_dist: UniformDiscreteDistribution): float =
+    return 0.5 * (uniform_discrete_dist.a + uniform_discrete_dist.b).float
+
+
+proc mode*(uniform_discrete_dist: UniformDiscreteDistribution): float =
+    return 0.5 * (uniform_discrete_dist.a + uniform_discrete_dist.b).float
+
+
+proc variance*(uniform_discrete_dist: UniformDiscreteDistribution): float =
+    return (pow2(uniform_discrete_dist.b - uniform_discrete_dist.a + 1) - 1).float / 12.0
 
 
 proc pmf*(uniform_discrete_dist: UniformDiscreteDistribution, x: int): float =
