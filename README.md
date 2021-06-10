@@ -1,3 +1,5 @@
+![Linux Build Status (Github Actions)](https://github.com/ayman-albaz/distributions/actions/workflows/install_and_test.yml/badge.svg) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 # Distributions
 Distributions is a Nim library for distributions and their functions.
 
