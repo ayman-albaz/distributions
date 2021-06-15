@@ -30,7 +30,7 @@ type
         lambda*: PositiveFloat
 
 
-proc initPoissonDistribution*(lambda: Natural): PoissonDistribution = 
+proc initPoissonDistribution*(lambda: PositiveFloat): PoissonDistribution = 
     result.lambda = lambda
 
 
