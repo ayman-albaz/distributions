@@ -15,7 +15,7 @@ Distributions is a Nim library for distributions and their functions.
 | Gamma              | `initGammaDistribution(k, theta: PositiveFloat)`                          |
 | Negative Binomial  | `initNegativeBinomialDistribution(r: Positive, p: FractionPositiveFloat)` |
 | Normal             | `initNormalDistribution(mu: float = 0.0, sigma: PositiveFloat = 1.0)`     |
-| Poisson            | `initPoissonDistribution(lambda: Positive Float)`                         |
+| Poisson            | `initPoissonDistribution(lambda: PositiveFloat)`                          |
 | t                  | `initTDistribution(df: Natural)`                                          |
 | Uniform Continuous | `initUniformContinuousDistribution(a, b: float)`                          |
 | Uniform Discrete   | `initUniformDiscreteDistribution(a, b: int)`                              |
