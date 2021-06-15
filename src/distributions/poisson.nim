@@ -27,10 +27,10 @@ type
         of the time since the last even' ~ Wikipedia
         https://en.wikipedia.org/wiki/Poisson_distribution
     ]#
-        lambda*: Natural
+        lambda*: PositiveFloat
 
 
-proc initPoissonDistribution*(lambda: Natural): PoissonDistribution = 
+proc initPoissonDistribution*(lambda: PositiveFloat): PoissonDistribution = 
     result.lambda = lambda
 
 
