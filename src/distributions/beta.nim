@@ -1,87 +1,64 @@
-type
-    Submodule* = object
-      name*: string
-
-proc initSubmodule*(): Submodule =
-    ## Initialises a new ``Submodule`` object.
-    Submodule(name: "Anonymous")
-
-
 import math
-import math_utils
-import special_functions/beta
-import utils
-
-
-{.nanChecks: on, infChecks: on.}
-
+import mathutils
+import special_functions
+import base, utils
 
 type 
-    BetaDistribution* = object
-    #[
-        'The beta distribution has been applied to model 
-        the behavior of random variables limited to intervals 
-        of finite length in a wide variety of disciplines.' ~ Wikipedia
-        https://en.wikipedia.org/wiki/Beta_distribution
+  BetaDistribution* = object of DistributionContinuous
+    ##[
+      'The beta distribution has been applied to model 
+      the behavior of random variables limited to intervals 
+      of finite length in a wide variety of disciplines.' ~ Wikipedia
+      https://en.wikipedia.org/wiki/Beta_distribution
+    ]##
+    alpha*: PositiveFloat
+    beta*: PositiveFloat
 
-    ]# 
-        alpha*: PositiveFloat
-        beta*: PositiveFloat
+func initBetaDistribution*(alpha, beta: PositiveFloat): BetaDistribution = 
+  result.alpha = alpha
+  result.beta = beta
 
+func mean*(dist: BetaDistribution): float =
+  result = dist.alpha / (dist.alpha + dist.beta)
 
-proc initBetaDistribution*(alpha, beta: PositiveFloat): BetaDistribution = 
-    result.alpha = alpha
-    result.beta = beta
+func median*(dist: BetaDistribution): float =
+  result = regularized_lower_incomplete_beta(dist.alpha, dist.beta, 0.5)
 
+func mode*(dist: BetaDistribution): float =
+  if dist.alpha > 1.0 and dist.beta > 1.0: result = (dist.alpha - 1) / (dist.alpha + dist.beta - 2)
+  elif dist.alpha == 1.0 and dist.beta == 1.0: result = 0.5
+  elif dist.alpha < 1.0 and dist.beta < 1.0: result = 0.5
+  elif dist.alpha <= 1.0 and dist.beta > 1.0: result = 0.0
+  elif dist.alpha > 1.0 and dist.beta <= 1.0: result = 1.0
 
-proc mean*(beta_dist: BetaDistribution): float =
-    return beta_dist.alpha / (beta_dist.alpha + beta_dist.beta)
+func variance*(dist: BetaDistribution): float =
+  result = dist.alpha * dist.beta / (pow2(dist.alpha + dist.beta) * (dist.alpha + dist.beta + 1.0))
 
+func pdf*(dist: BetaDistribution, b: FractionPositiveFloat): float =
+  ##[
+    Probability Density function (PDF) for BetaDistribution.
+    Accurate for up-to 14 decimal place.
+  ]##
+  result = pow(b, dist.alpha - 1.0) * pow(1 - b, dist.beta - 1) / beta(dist.alpha, dist.beta) 
 
-proc median*(beta_dist: BetaDistribution): float =
-    return regularized_lower_incomplete_beta(beta_dist.alpha, beta_dist.beta, 0.5)
+func cdf*(dist: BetaDistribution, b: FractionPositiveFloat): float = 
+  ##[
+    Cumulative Density function (CDF) for BetaDistribution.
+    Accurate for up-to 14 decimal place.
+  ]##
+  result = regularized_lower_incomplete_beta(dist.alpha, dist.beta, b)
 
+func sf*(dist: BetaDistribution, b: FractionPositiveFloat): float =
+  ##[
+    Survival function (sf) for BetaDistribution.
+    Equivalent to 1 - cdf.
+    Accurate for up-to 14 decimal place.
+  ]##
+  result = 1 - dist.cdf(b)
 
-proc mode*(beta_dist: BetaDistribution): float =
-    if beta_dist.alpha > 1.0 and beta_dist.beta > 1.0: return (beta_dist.alpha - 1) / (beta_dist.alpha + beta_dist.beta - 2)
-    elif beta_dist.alpha == 1.0 and beta_dist.beta == 1.0: return 0.5
-    elif beta_dist.alpha < 1.0 and beta_dist.beta < 1.0: return 0.5
-    elif beta_dist.alpha <= 1.0 and beta_dist.beta > 1.0: return 0.0
-    elif beta_dist.alpha > 1.0 and beta_dist.beta <= 1.0: return 1.0
-
-
-proc variance*(beta_dist: BetaDistribution): float =
-    return beta_dist.alpha * beta_dist.beta / (pow2(beta_dist.alpha + beta_dist.beta) * (beta_dist.alpha + beta_dist.beta + 1.0))
-
-
-proc pdf*(beta_dist: BetaDistribution, b: FractionPositiveFloat): float =
-    #[
-        Probability Density Function (PDF) for BetaDistribution.
-        Accurate for up-to 14 decimal place.
-    ]#
-    return pow(b, beta_dist.alpha - 1.0) * pow(1 - b, beta_dist.beta - 1) / beta(beta_dist.alpha, beta_dist.beta) 
-
-
-proc cdf*(beta_dist: BetaDistribution, b: FractionPositiveFloat): float = 
-    #[
-        Cumulative Density Function (CDF) for BetaDistribution.
-        Accurate for up-to 14 decimal place.
-    ]#
-    return regularized_lower_incomplete_beta(beta_dist.alpha, beta_dist.beta, b)
-
-
-proc sf*(beta_dist: BetaDistribution, b: FractionPositiveFloat): float =
-    #[
-        Survival function (sf) for BetaDistribution.
-        Equivalent to 1 - cdf.
-        Accurate for up-to 14 decimal place.
-    ]#
-    return 1 - beta_dist.cdf(b)
-
-
-proc ppf*(beta_dist: BetaDistribution, p: FractionPositiveFloat): float = 
-    #[
-        Point prevalence function (ppf) for BetaDistribution.
-        Accurate for up-to 14 decimal place.
-    ]#
-    return inverse_regularized_lower_incomplete_beta(beta_dist.alpha, beta_dist.beta, p)
+func ppf*(dist: BetaDistribution, p: FractionPositiveFloat): float = 
+  ##[
+    Point prevalence function (ppf) for BetaDistribution.
+    Accurate for up-to 14 decimal place.
+  ]##
+  result = inverse_regularized_lower_incomplete_beta(dist.alpha, dist.beta, p)

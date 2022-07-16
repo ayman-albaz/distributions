@@ -1,2 +1,2 @@
-import distributions/bernoulli, distributions/beta, distributions/binomial, distributions/chi2, distributions/F, distributions/gamma, distributions/negative_binomial, distributions/normal, distributions/poisson, distributions/t, distributions/uniform_continuous, distributions/uniform_discrete,  distributions/utils
-export bernoulli, beta, binomial, chi2, F, gamma, negative_binomial, normal, poisson, t, uniform_continuous, uniform_discrete
+import distributions/[bernoulli, beta, binomial, chi2, f, gamma, negativebinomial, normal, poisson, t, uniformcontinuous, uniformdiscrete, mathutils]
+export bernoulli, beta, binomial, chi2, f, gamma, negativebinomial, normal, poisson, t, uniformcontinuous, uniformdiscrete, mathutils

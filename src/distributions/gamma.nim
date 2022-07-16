@@ -1,73 +1,56 @@
-type
-    Submodule* = object
-      name*: string
-
-proc initSubmodule*(): Submodule =
-    ## Initialises a new ``Submodule`` object.
-    Submodule(name: "Anonymous")
-
-
 import math
-import math_utils
-import special_functions/gamma
-import utils
-
-
-{.nanChecks: on, infChecks: on.}
-
+import mathutils
+import special_functions
+import base, utils
 
 type 
-    GammaDistribution* = object
-    #[
-        'The beta distribution has been applied to model 
-        the behavior of random variables limited to intervals 
-        of finite length in a wide variety of disciplines.' ~ Wikipedia
-        https://en.wikipedia.org/wiki/Beta_distribution
+  GammaDistribution* = object of DistributionContinuous
+    ##[
+      https://en.wikipedia.org/wiki/distribution
+    ]##
+    k*: PositiveFloat
+    theta*: PositiveFloat
 
-    ]#
-        k*: PositiveFloat
-        theta*: PositiveFloat
+func initGammaDistribution*(k, theta: PositiveFloat): GammaDistribution = 
+  result.k = k
+  result.theta = theta
 
+func mean*(dist: GammaDistribution): float =
+  result = dist.k * dist.theta
 
-proc initGammaDistribution*(k, theta: PositiveFloat): GammaDistribution = 
-    result.k = k
-    result.theta = theta
+func mode*(dist: GammaDistribution): float =
+  if dist.k < 1.0: result = 0
+  else: result = dist.theta * (dist.k - 1.0)
 
+func variance*(dist: GammaDistribution): float =
+  result = dist.k  * pow2(dist.theta)
 
-proc mean*(gamma_dist: GammaDistribution): float =
-    return gamma_dist.k * gamma_dist.theta
+func pdf*(dist: GammaDistribution, x: PositiveFloat): float =
+  ##[
+    Probability Density Function (PDF) for GammaDistribution.
+    Accurate for up-to 14 decimal place.
+  ]##
+  result = pow(x, dist.k - 1.0) * pow(E, -(x / dist.theta)) / (gamma(dist.k) * pow(dist.theta, dist.k))
 
+func cdf*(dist: GammaDistribution, x: PositiveFloat): float = 
+  ##[
+    Cumulative Density Function (CDF) for GammaDistribution.
+    Accurate for up-to 14 decimal place.
+  ]##
+  result = lower_incomplete_gamma(dist.k, x / dist.theta) / gamma(dist.k)
 
-proc mode*(gamma_dist: GammaDistribution): float =
-    if gamma_dist.k < 1.0: return 0
-    else: return gamma_dist.theta * (gamma_dist.k - 1.0)
-
-
-proc variance*(gamma_dist: GammaDistribution): float =
-    return gamma_dist.k  * pow2(gamma_dist.theta)
-
-
-proc pdf*(gamma_dist: GammaDistribution, x: PositiveFloat): float =
-    #[
-        Probability Density Function (PDF) for GammaDistribution.
-        Accurate for up-to 14 decimal place.
-    ]#
-    return pow(x, gamma_dist.k - 1.0) * pow(E, -(x / gamma_dist.theta)) / (gamma(gamma_dist.k) * pow(gamma_dist.theta, gamma_dist.k))
-
-
-proc cdf*(gamma_dist: GammaDistribution, x: PositiveFloat): float = 
-    #[
-        Cumulative Density Function (CDF) for GammaDistribution.
-        Accurate for up-to 14 decimal place.
-    ]#
-    return lower_incomplete_gamma(gamma_dist.k, x / gamma_dist.theta) / gamma(gamma_dist.k)
+func sf*(dist: GammaDistribution, x: PositiveFloat): float =
+  ##[
+    Survival function (sf) for GammaDistribution.
+    Equivalent to 1 - cdf.
+    Accurate for up-to 14 decimal place.
+  ]##
+  result = 1 - dist.cdf(x)
 
 
-proc sf*(gamma_dist: GammaDistribution, x: PositiveFloat): float =
-    #[
-        Survival function (sf) for GammaDistribution.
-        Equivalent to 1 - cdf.
-        Accurate for up-to 14 decimal place.
-    ]#
-    return 1 - gamma_dist.cdf(x)
-
+func ppf*(dist: GammaDistribution, p: FractionPositiveFloat): float =
+  ##[
+    Point prevalence function (ppf) for GammaDistribution.
+    Accurate for up-to 13 decimal place.
+  ]##
+  result = inverse_regularized_lower_incomplete_gamma(dist.k, p) + dist.theta
