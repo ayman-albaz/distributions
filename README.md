@@ -22,7 +22,6 @@ Distributions is a Nim library for distributions and their functions.
 |                    |                                                                           |
 
 ## Supported Functions
-Please note these functions are available for all distributions, except for the t and gamma distributions which lack the point prevalence (ppf) function. Also note: all these functions return a float.
 ```Nim
 let normal_dist = initNormalDistribution(0.0, 1.0)
 discard normal_dist.mean()		# Mean
@@ -48,7 +47,7 @@ I don't have a preferred direction and I prefer to leave the answer for the Nim 
 
 
 ## Accuracy
-All functions in this library are accurate up-to 14 decimal places (float64).
+Most functions in this library are accurate up-to 14 decimal places (float64).
 
 
 ## Performance
@@ -57,7 +56,6 @@ This library was written with accuracy as a top priority as opposed to performan
 
 ## TODO
 List is organized from most important to least important:
-- Add ppf for T-distribution and Gamma-distributions
 - Add more functions for each distribution (in this order: random, fit, CF, skewness, etc...)
 - Add more univariate distributions on an as-need-bases
 - Bonus: Add multivariate distributions on an as-need-bases
