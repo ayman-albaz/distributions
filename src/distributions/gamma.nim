@@ -2,6 +2,7 @@
 {.push raises: [].}
 
 import std/math
+import std/random
 import special_functions
 import distributions/[base, mathutils]
 
@@ -76,5 +77,10 @@ func ppf*[T: SomeFloat](d: GammaDistribution[T], p: T): T =
       Inf
     else:
       v * d.theta
+
+proc sample*[T: SomeFloat](d: GammaDistribution[T], r: var Rand): T {.raises: [CatchableError].} =
+  ## Draw a Gamma(k, θ) variate via Marsaglia-Tsang, scaled by θ.
+  ## <https://en.wikipedia.org/wiki/Gamma_distribution#Generating_gamma-distributed_random_variables>
+  standardGamma(r, d.k) * d.theta
 
 {.pop.}

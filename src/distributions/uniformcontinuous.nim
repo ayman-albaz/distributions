@@ -1,6 +1,7 @@
 {.experimental: "strictFuncs".}
 {.push raises: [].}
 
+import std/random
 import distributions/[base, mathutils]
 
 ## Uniform continuous distribution on ``[a, b]`` (``a < b``).
@@ -64,5 +65,10 @@ func ppf*[T: SomeFloat](d: UniformContinuousDistribution[T], p: T): T =
     d.b
   else:
     p * (d.b - d.a) + d.a
+
+proc sample*[T: SomeFloat](d: UniformContinuousDistribution[T], r: var Rand): T {.raises: [CatchableError].} =
+  ## Draw a UniformContinuous(a, b) variate via the inverse-CDF closed form.
+  ## <https://en.wikipedia.org/wiki/Continuous_uniform_distribution#Random_variate_generation>
+  d.a + (d.b - d.a) * T(r.rand(1.0))
 
 {.pop.}

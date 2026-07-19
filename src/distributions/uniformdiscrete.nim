@@ -1,6 +1,7 @@
 {.experimental: "strictFuncs".}
 {.push raises: [].}
 
+import std/random
 import distributions/[base, mathutils]
 
 ## Uniform discrete distribution on ``{a, …, b}`` (``a ≤ b``).
@@ -65,5 +66,10 @@ proc ppf*[T: SomeFloat](d: UniformDiscreteDistribution[T], p: T): int {.raises: 
     d.b
   else:
     discretePpf(proc(k: int): T {.closure, raises: [].} = d.cdf(k), p, start = d.a)
+
+proc sample*[T: SomeFloat](d: UniformDiscreteDistribution[T], r: var Rand): int {.raises: [CatchableError].} =
+  ## Draw a UniformDiscrete(a, b) variate via std/random's `rand(range)`.
+  ## <https://en.wikipedia.org/wiki/Discrete_uniform_distribution#Random_variate_generation>
+  r.rand(d.a .. d.b)
 
 {.pop.}

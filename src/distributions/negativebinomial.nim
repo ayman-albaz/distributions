@@ -2,6 +2,7 @@
 {.push raises: [].}
 
 import std/math
+import std/random
 import special_functions
 import distributions/[base, mathutils]
 
@@ -74,5 +75,15 @@ proc ppf*[T: SomeFloat](d: NegativeBinomialDistribution[T], p: T): int {.raises:
     0
   else:
     discretePpf(proc(k: int): T {.closure, raises: [].} = d.cdf(k), p, start = 0)
+
+proc sample*[T: SomeFloat](d: NegativeBinomialDistribution[T], r: var Rand): int {.raises: [CatchableError].} =
+  ## Draw a NegativeBinomial(r, p) variate via Gamma-Poisson mixture:
+  ## Y ~ Gamma(r, (1-p)/p); K | Y ~ Poisson(Y).
+  ## <https://en.wikipedia.org/wiki/Negative_binomial_distribution#Gamma%E2%80%93Poisson_mixture>
+  if d.p == T(0.0) or d.p == T(1.0):
+    return 0
+  let scale = (T(1.0) - d.p) / d.p
+  let y = standardGamma(r, T(d.r)) * scale
+  samplePoisson(r, y)
 
 {.pop.}

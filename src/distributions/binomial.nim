@@ -2,6 +2,7 @@
 {.push raises: [].}
 
 import std/math
+import std/random
 import special_functions
 import distributions/[base, mathutils]
 
@@ -75,5 +76,10 @@ proc ppf*[T: SomeFloat](d: BinomialDistribution[T], p: T): int {.raises: [ValueE
     d.n
   else:
     discretePpf(proc(k: int): T {.closure, raises: [].} = d.cdf(k), p, start = 0)
+
+proc sample*[T: SomeFloat](d: BinomialDistribution[T], r: var Rand): int {.raises: [CatchableError].} =
+  ## Draw a Binomial(n, p) variate via `mathutils.sampleBinomial`.
+  ## <https://en.wikipedia.org/wiki/Binomial_distribution#Generating_random_numbers>
+  sampleBinomial(r, d.n, d.p)
 
 {.pop.}

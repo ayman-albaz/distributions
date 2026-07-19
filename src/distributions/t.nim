@@ -2,6 +2,7 @@
 {.push raises: [].}
 
 import std/math
+import std/random
 import special_functions
 import distributions/[base, mathutils]
 
@@ -108,5 +109,12 @@ func ppf*[T: SomeFloat](d: TDistribution[T], p: T): T =
         (fd + T(1.0)) / (fd + T(2.0)) + T(1.0) / y
 
   T(sign * sqrt(fd * y))
+
+proc sample*[T: SomeFloat](d: TDistribution[T], r: var Rand): T {.raises: [CatchableError].} =
+  ## Draw a t(df) variate as Z / sqrt(V/df), Z ~ N(0,1), V ~ χ²(df).
+  ## <https://en.wikipedia.org/wiki/Student%27s_t-distribution#Generating_random_variates>
+  let z = T(gauss(r, 0.0, 1.0))
+  let v = standardGamma(r, T(d.df) * T(0.5)) * T(2.0)
+  z / sqrt(v / T(d.df))
 
 {.pop.}

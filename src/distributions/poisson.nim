@@ -2,6 +2,7 @@
 {.push raises: [].}
 
 import std/math
+import std/random
 import special_functions
 import distributions/[base, mathutils]
 
@@ -60,5 +61,10 @@ proc ppf*[T: SomeFloat](d: PoissonDistribution[T], p: T): int {.raises: [ValueEr
     0
   else:
     discretePpf(proc(k: int): T {.closure, raises: [].} = d.cdf(k), p, start = 0)
+
+proc sample*[T: SomeFloat](d: PoissonDistribution[T], r: var Rand): int {.raises: [CatchableError].} =
+  ## Draw a Poisson(λ) variate via `mathutils.samplePoisson`.
+  ## <https://en.wikipedia.org/wiki/Poisson_distribution#Generating_Poisson-distributed_random_variables>
+  samplePoisson(r, d.lambda)
 
 {.pop.}

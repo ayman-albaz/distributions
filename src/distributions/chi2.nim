@@ -2,8 +2,9 @@
 {.push raises: [].}
 
 import std/math
+import std/random
 import special_functions
-import distributions/[base]
+import distributions/[base, mathutils]
 
 ## Chi-squared distribution — sum of squares of ``df`` independent
 ## standard normal random variables.
@@ -69,5 +70,10 @@ func ppf*[T: SomeFloat](d: Chi2Distribution[T], p: T): T =
       Inf
     else:
       v * T(2.0)
+
+proc sample*[T: SomeFloat](d: Chi2Distribution[T], r: var Rand): T {.raises: [CatchableError].} =
+  ## Draw a χ²(df) variate as Gamma(df/2, 2).
+  ## <https://en.wikipedia.org/wiki/Chi-square_distribution#Computational_methods>
+  standardGamma(r, T(d.df) * T(0.5)) * T(2.0)
 
 {.pop.}

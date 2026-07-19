@@ -1,5 +1,6 @@
 import std/math
 import std/unittest
+import std/random
 
 import distributions
 
@@ -155,3 +156,40 @@ suite "Edge cases":
     ## (NB: count failures before r=10 successes, p=0.25 probability of success)
     let d = initNegativeBinomialDistribution(10, 0.25)
     check abs(d.pmf(5) - 0.000453) < 2e-6
+
+  test "Binomial n=0 sample always 0":
+    var r = initRand(0xDEADBEEF)
+    let d = initBinomialDistribution(0, 0.5)
+    for i in 0 ..< 5:
+      check d.sample(r) == 0
+
+  test "Binomial p=0 sample always 0":
+    var r = initRand(0xDEADBEEF)
+    let d = initBinomialDistribution(10, 0.0)
+    for i in 0 ..< 10:
+      check d.sample(r) == 0
+
+  test "Binomial p=1 sample always n":
+    var r = initRand(0xDEADBEEF)
+    let d = initBinomialDistribution(10, 1.0)
+    for i in 0 ..< 10:
+      check d.sample(r) == 10
+
+  test "NegativeBinomial p=0 sample always 0":
+    var r = initRand(0xDEADBEEF)
+    let d = initNegativeBinomialDistribution(5, 0.0)
+    for i in 0 ..< 5:
+      check d.sample(r) == 0
+
+  test "NegativeBinomial p=1 sample always 0":
+    var r = initRand(0xDEADBEEF)
+    let d = initNegativeBinomialDistribution(5, 1.0)
+    for i in 0 ..< 5:
+      check d.sample(r) == 0
+
+  test "Gamma k=1 theta=2 sample returns non-negative":
+    var r = initRand(0xDEADBEEF)
+    let d = initGammaDistribution(1.0, 2.0)
+    for i in 0 ..< 100:
+      let x = d.sample(r)
+      check x >= 0.0

@@ -46,24 +46,24 @@ proc standardGamma*[T: SomeFloat](r: var Rand, k: T): T {.raises: [CatchableErro
   ## Sample Gamma(shape=k, scale=1) via Marsaglia-Tsang (2000).
   ## For k < 1, uses the boost: sample Gamma(k+1, 1) and multiply by U^(1/k).
   ## <https://en.wikipedia.org/wiki/Gamma_distribution#Generating_gamma-distributed_random_variables>
-  proc gammaMt(kLocal: T): T {.raises: [CatchableError].} =
+  proc gammaMt(rMt: var Rand, kLocal: T): T {.raises: [CatchableError].} =
     let d = kLocal - T(1.0) / T(3.0)
     let c = T(1.0) / sqrt(T(9.0) * d)
     while true:
-      let x = T(gauss(r, 0.0, 1.0))
+      let x = T(gauss(rMt, 0.0, 1.0))
       let v = pow3(T(1.0) + c * x)
       if v <= T(0.0):
         continue
-      let u = T(r.rand(1.0))
+      let u = T(rMt.rand(1.0))
       if u <= T(0.0):
         continue
       if ln(u) < T(0.5) * pow2(x) + d - d * v + d * ln(v):
         return d * v
     # unreachable
   if k >= T(1.0):
-    result = gammaMt(k)
+    result = gammaMt(r, k)
   else:
-    let g = gammaMt(k + T(1.0))
+    let g = gammaMt(r, k + T(1.0))
     let u = T(r.rand(1.0))
     if u <= T(0.0):
       result = T(0.0)

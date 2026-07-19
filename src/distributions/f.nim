@@ -2,8 +2,9 @@
 {.push raises: [].}
 
 import std/math
+import std/random
 import special_functions
-import distributions/[base]
+import distributions/[base, mathutils]
 
 ## F-distribution — ratio of scaled chi-squared variates with
 ## degrees of freedom ``df1`` and ``df2``.
@@ -86,5 +87,12 @@ func ppf*[T: SomeFloat](d: FDistribution[T], p: T): T =
     T(d.df2) / T(d.df1) * (
       T(1.0) / inverse_regularized_upper_incomplete_beta(
         fd2 / T(2.0), fd1 / T(2.0), p) - T(1.0))
+
+proc sample*[T: SomeFloat](d: FDistribution[T], r: var Rand): T {.raises: [CatchableError].} =
+  ## Draw an F(df1, df2) variate as (χ²(df1)/df1) / (χ²(df2)/df2).
+  ## <https://en.wikipedia.org/wiki/F-distribution#Generating_from_a_chi-square_distribution>
+  let x1 = standardGamma(r, T(d.df1) * T(0.5)) * T(2.0)
+  let x2 = standardGamma(r, T(d.df2) * T(0.5)) * T(2.0)
+  (x1 / T(d.df1)) / (x2 / T(d.df2))
 
 {.pop.}

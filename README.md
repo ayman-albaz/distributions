@@ -33,10 +33,11 @@ discard d.cdf(x)     # Cumulative distribution function
 discard d.sf(x)      # Survival function (1 - cdf)
 discard d.ppf(p)     # Percent point function (quantile, inverse CDF)
 
-# Sampling (Normal only)
+# Sampling (all distributions)
 import std/random
 var r = initRand(0xDEADBEEF)
-discard d.sample(r)
+discard initNormalDistribution(0.0, 1.0).sample(r)   # continuous → float64
+discard initPoissonDistribution(5.0).sample(r)         # discrete → int
 ```
 
 ## Accuracy
@@ -59,7 +60,6 @@ nimble install distributions
 ```
 
 ## TODO
-- Add sampling for the other distributions.
 - Add more distributions on an as-needed basis.
 - Add fit, CF, skewness functions.
 

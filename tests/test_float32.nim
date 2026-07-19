@@ -132,3 +132,51 @@ suite "float32 paths":
     for i in 0 ..< n:
       total += d32.sample(r)
     check abs(total / float32(n) - 0.0'f32) < 0.05'f32
+
+  test "float32 sample":
+    let rngSeed = 0xDEADBEEF
+
+    block:
+      var r = initRand(rngSeed)
+      let d = initNormalDistribution(0.0'f32, 1.0'f32)
+      const n = 1000
+      var total = 0'f32
+      for i in 0 ..< n:
+        total += d.sample(r)
+      check abs(total / float32(n) - 0.0'f32) < 0.1'f32
+
+    block:
+      var r = initRand(rngSeed)
+      let d = initUniformContinuousDistribution(0.0'f32, 1.0'f32)
+      const n = 1000
+      var total = 0'f32
+      for i in 0 ..< n:
+        total += d.sample(r)
+      check abs(total / float32(n) - d.mean()) < 0.1'f32
+
+    block:
+      var r = initRand(rngSeed)
+      let d = initGammaDistribution(2.0'f32, 2.0'f32)
+      const n = 1000
+      var total = 0'f32
+      for i in 0 ..< n:
+        total += d.sample(r)
+      check abs(total / float32(n) - d.mean()) < 1.0'f32
+
+    block:
+      var r = initRand(rngSeed)
+      let d = initBetaDistribution(2.0'f32, 5.0'f32)
+      const n = 1000
+      var total = 0'f32
+      for i in 0 ..< n:
+        total += d.sample(r)
+      check abs(total / float32(n) - d.mean()) < 0.1'f32
+
+    block:
+      var r = initRand(rngSeed)
+      let d = initBinomialDistribution(10, 0.5'f32)
+      const n = 1000
+      var total = 0'f32
+      for i in 0 ..< n:
+        total += float32(d.sample(r))
+      check abs(total / float32(n) - d.mean()) < 1.0'f32

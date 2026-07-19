@@ -2,6 +2,7 @@
 {.push raises: [].}
 
 import std/math
+import std/random
 import special_functions
 import distributions/[base, mathutils]
 
@@ -88,5 +89,32 @@ func ppf*[T: SomeFloat](d: BetaDistribution[T], p: T): T =
     T(1.0)
   else:
     inverse_regularized_lower_incomplete_beta(d.alpha, d.beta, p)
+
+proc sample*[T: SomeFloat](d: BetaDistribution[T], r: var Rand): T {.raises: [CatchableError].} =
+  ## Draw a Beta(α, β) variate.
+  ## α ≥ 1 ∧ β ≥ 1: Gamma ratio g1/(g1+g2), g_i ~ Gamma(α_i, 1).
+  ## Otherwise: Jöhnk (1959), x = u^(1/α)/(u^(1/α)+v^(1/β)), accept if
+  ## u^(1/α)+v^(1/β) ≤ 1. MaxIter cap with fallback to closed-form ppf.
+  ## <https://en.wikipedia.org/wiki/Beta_distribution#Generating_beta-distributed_random_variates>
+  const MaxIter = 10_000
+  if d.alpha >= T(1.0) and d.beta >= T(1.0):
+    let g1 = standardGamma(r, d.alpha)
+    let g2 = standardGamma(r, d.beta)
+    if g1 + g2 == T(0.0):
+      return T(0.0)
+    return g1 / (g1 + g2)
+  else:
+    for iter in 0 ..< MaxIter:
+      let u = T(r.rand(1.0))
+      let v = T(r.rand(1.0))
+      if u <= T(0.0) or v <= T(0.0):
+        continue
+      let x = exp(ln(u) / d.alpha)
+      let y = exp(ln(v) / d.beta)
+      let s = x + y
+      if s > T(1.0) or s == T(0.0):
+        continue
+      return x / s
+    d.ppf(T(r.rand(1.0)))
 
 {.pop.}

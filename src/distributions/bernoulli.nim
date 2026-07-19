@@ -1,6 +1,7 @@
 {.experimental: "strictFuncs".}
 {.push raises: [].}
 
+import std/random
 import distributions/[base]
 
 ## Bernoulli distribution — discrete distribution with two outcomes:
@@ -75,5 +76,9 @@ func ppf*[T: SomeFloat](d: BernoulliDistribution[T], p: T): int =
     0
   else:
     1
+
+proc sample*[T: SomeFloat](d: BernoulliDistribution[T], r: var Rand): int {.raises: [CatchableError].} =
+  ## Draw a Bernoulli variate: 1 with probability p, 0 otherwise.
+  if T(r.rand(1.0)) < d.p: 1 else: 0
 
 {.pop.}
