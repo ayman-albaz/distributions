@@ -1,20 +1,10 @@
-import math
-import times
-import unittest
+import std/math
+import std/unittest
 
 import distributions
 
-
 suite "NegativeBinomialDistribution":
-  
   const r1 = 14
-
-  setup:
-    let t0 = getTime()
-
-  teardown:
-    echo "\n  RUNTIME: ", getTime() - t0
-
 
   test "NegativeBinomialDistribution(10, 0.25).mean()":
     let negative_binomial_dist = initNegativeBinomialDistribution(10, 0.25)
@@ -62,7 +52,7 @@ suite "NegativeBinomialDistribution":
 
   test "NegativeBinomialDistribution(40, 0.5).pmf(20)":
     let negative_binomial_dist = initNegativeBinomialDistribution(40, 0.5)
-    check negative_binomial_dist.pmf(20).round(r1) == 0.002423897023955031.round(r1)
+    check negative_binomial_dist.pmf(20).round(r1) == 0.002423897023955.round(r1)
 
   test "NegativeBinomialDistribution(40, 0.5).cdf(10)":
     let negative_binomial_dist = initNegativeBinomialDistribution(40, 0.5)

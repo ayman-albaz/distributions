@@ -1,73 +1,74 @@
-import math
-import mathutils
-import random
+{.experimental: "strictFuncs".}
+{.push raises: [].}
+
+import std/math
+import std/random
 import special_functions
-import base, utils
+import distributions/[base, mathutils]
 
-type 
-  NormalDistribution* = object of DistributionContinuous
-    ##[
-      'Normal distributions are important in statistics
-      and are often used in the natural and social sciences
-      to represent real-valued random variables whose distributions
-      are not known. Their importance is partly due to the central limit theorem.
-      It states that, under some conditions, the average of many
-      samples (observations) of a random variable with finite mu and
-      variance is itself a random variable—whose distribution converges
-      to a normal distribution as the number of samples increases.
-      Therefore, physical quantities that are expected to be the sum of many
-      independent funcesses, such as measurement errors, often have
-      distributions that are nearly normal' ~ Wikipedia
-      https://en.wikipedia.org/wiki/Normal_distribution
-    ]##
-    mu*: float
-    sigma*: PositiveFloat
+## Normal (Gaussian) distribution — continuous distribution with
+## mean ``mu`` and standard deviation ``sigma > 0``.
+## <https://en.wikipedia.org/wiki/Normal_distribution>
 
-func initNormalDistribution*(mu: float = 0.0, sigma: PositiveFloat = 1.0): NormalDistribution = 
+type
+  NormalDistribution*[T: SomeFloat] = object of DistributionContinuous
+    mu*: T
+    sigma*: T
+
+func initNormalDistribution*[T: SomeFloat](
+    mu, sigma: T): NormalDistribution[T] {.raises: [ValueError].} =
+  ## Construct a Normal distribution with mean `mu` and standard deviation `sigma`.
+  ## `sigma` must be > 0.
+  validatePositive("sigma", sigma)
   result.mu = mu
   result.sigma = sigma
 
-func mean*(dist: NormalDistribution): float =
-  result = dist.mu
+func mean*[T: SomeFloat](d: NormalDistribution[T]): T =
+  ## Mean: ``mu``.
+  d.mu
 
-func median*(dist: NormalDistribution): float =
-  result = dist.mu
+func median*[T: SomeFloat](d: NormalDistribution[T]): T =
+  ## Median: ``mu``.
+  d.mu
 
-func mode*(dist: NormalDistribution): float =
-  result = dist.mu
+func mode*[T: SomeFloat](d: NormalDistribution[T]): T =
+  ## Mode: ``mu``.
+  d.mu
 
-func variance*(dist: NormalDistribution): float =
-  result = pow2(dist.sigma)
+func variance*[T: SomeFloat](d: NormalDistribution[T]): T =
+  ## Variance: ``sigma²``.
+  pow2(d.sigma)
 
-func pdf*(dist: NormalDistribution, z: float): float =
-  ##[
-    Probability Density Function (PDF) for NormalDistribution.
-    Accurate for up-to 14 decimal place.
-  ]##
-  result = pow(E, (-0.5 * pow2((z - dist.mu) / dist.sigma))) / (dist.sigma * sqrt(2.0 * PI))
+func pdf*[T: SomeFloat](d: NormalDistribution[T], x: T): T =
+  ## Probability Density Function (PDF) for NormalDistribution.
+  exp(-pow2(x - d.mu) / (T(2.0) * pow2(d.sigma)) -
+      ln(d.sigma) - T(0.5) * ln(T(2.0) * T(PI)))
 
-func cdf*(dist: NormalDistribution, z: float): float = 
-  ##[
-    Cumulative Density Function (CDF) for NormalDistribution.
-    Accurate for up-to 14 decimal place.
-  ]##
-  result = 0.5 * (1 + erf((z - dist.mu) / (dist.sigma * sqrt(2.0))))
+func cdf*[T: SomeFloat](d: NormalDistribution[T], x: T): T =
+  ## Cumulative Distribution Function (CDF) for NormalDistribution.
+  T(0.5) * (T(1.0) + erf((x - d.mu) / (d.sigma * sqrt(T(2.0)))))
 
-func sf*(dist: NormalDistribution, z: float): float =
-  ##[
-    Survival function (sf) for NormalDistribution.
-    Equivalent to 1 - cdf.
-    Accurate for up-to 14 decimal place.
-  ]##
-  result = 1 - dist.cdf(z)
+func sf*[T: SomeFloat](d: NormalDistribution[T], x: T): T =
+  ## Survival Function (SF): 1 - CDF for NormalDistribution.
+  T(1.0) - d.cdf(x)
 
-func ppf*(dist: NormalDistribution, p: FractionPositiveFloat): float = 
-  ##[
-    Point prevalence function (ppf) for NormalDistribution.
-    Accurate for up-to 14 decimal place.
-  ]##
-  result = dist.mu + dist.sigma * sqrt(2.0) * inverse_erf(2.0 * p - 1.0)
+func ppf*[T: SomeFloat](d: NormalDistribution[T], p: T): T =
+  ## Percent Point Function (quantile, inverse CDF) for NormalDistribution.
+  if p <= T(0.0):
+    -Inf
+  elif p >= T(1.0):
+    Inf
+  else:
+    d.mu + d.sigma * sqrt(T(2.0)) * inverse_erf(T(2.0) * p - T(1.0))
 
-proc rand*(dist: NormalDistribution): float = 
-  ## Make sure to import random and `initRand`
-  result = gauss(dist.mu, dist.sigma)
+proc sample*[T: SomeFloat](d: NormalDistribution[T], r: var Rand): T {.raises: [CatchableError].} =
+  ## Draw a random sample from the Normal distribution using the given `r` RNG.
+  ##
+  ## .. code-block:: nim
+  ##   import std/random
+  ##   var r = initRand(0xDEADBEEF)
+  ##   let d = initNormalDistribution(0.0, 1.0)
+  ##   echo d.sample(r)
+  T(gauss(r, d.mu, d.sigma))
+
+{.pop.}

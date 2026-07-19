@@ -1,104 +1,112 @@
-import math
+{.experimental: "strictFuncs".}
+{.push raises: [].}
+
+import std/math
 import special_functions
-import base, mathutils, utils, normal
+import distributions/[base, mathutils]
 
-type 
-  TDistribution* = object of DistributionContinuous 
-    ##[
-      'In probability and statistics, Student's t-distribution (or simply the t-distribution)
-      is any member of a family of continuous probability distributions that arise when
-      estimating the mean of a normally-distributed population in situations where
-      the sample size is small and the population's standard deviation is unknown.' ~ Wikipedia
-      https://en.wikipedia.org/wiki/Student%27s_t-distribution
-    ]##
-    df*: Positive
+## Student's t-distribution — continuous distribution with ``df``
+## degrees of freedom.
+## <https://en.wikipedia.org/wiki/Student%27s_t-distribution>
 
-func initTDistribution*(df: Positive): TDistribution = 
-  result = TDistribution(df: df)
+type
+  TDistribution*[T: SomeFloat] = object of DistributionContinuous
+    df*: int
 
-func mean*(dist: TDistribution): float =
-  result = 0.0
+func initTDistribution*[T: SomeFloat](df: int): TDistribution[T] {.raises: [ValueError].} =
+  ## Construct a Student's t-distribution with `df` degrees of freedom.
+  ## `df` must be >= 1.
+  validatePositive("df", df)
+  result.df = df
 
-func median*(dist: TDistribution): float =
-  result = 0.0
-
-func mode*(dist: TDistribution): float =
-  result = 0.0
-
-func variance*(dist: TDistribution): float =
-  if dist.df <= 2: result = Inf
-  else: result = dist.df / (dist.df - 2)
-
-func pdf*(dist: TDistribution, t: float): float =
-  ##[
-    Probability Density Function (PDF) for TDistribution.
-    Accurate for up-to 14 decimal place.
-  ]##
-  result = gamma((dist.df + 1) / 2) / (sqrt(PI * dist.df.float) * gamma(dist.df / 2) * pow(1.float + pow2(t) / dist.df.float, (((dist.df + 1) / 2))))
-
-func cdf*(dist: TDistribution, t: float): float = 
-  ##[
-    Cumulative Density Function (CDF) for TDistribution.
-    Accurate for up-to 14 decimal place.
-  ]##
-  let x: float = (t + sqrt(t * t + dist.df.float)) / (2.0 * sqrt(t * t + dist.df.float))
-  let prob: float = regularized_lower_incomplete_beta(dist.df.float / 2.0, dist.df.float / 2.0, x)
-  result = prob
-
-func sf*(dist: TDistribution, t: float): float =
-  ##[
-    Survival function (sf) for TDistribution.
-    Equivalent to 1 - cdf.
-    Accurate for up-to 14 decimal place.
-  ]##
-  result = 1 - dist.cdf(t)
-
-
-func ppf*(dist: TDistribution, p: FractionPositiveFloat): float =
-  ##[
-    Point prevalence function (ppf) for TDistribution.
-    Accurate for up-to 10 decimal place.
-  ]##
-
-  # Hill, G. W. (1970).
-  # Algorithm 396: Student's t-quantiles.
-  # Communications of the ACM, 13(10), 619-620.
-  # Impl based off: https://github.com/ankane/dist.h/blob/master/include/dist.h
-
-  # distribution is symmetric
-  let sign = if p < 0.5: -1.0 else: 1.0
-  var pmut: float = p
-  pmut = if p < 0.5: 1 - pmut else: pmut
-
-  # two-tail to one-tail
-  pmut = 2.0 * (1.0 - pmut)
-
-  if dist.df == 2:
-    return sign * sqrt(2.0 / (pmut * (2.0 - pmut)) - 2.0)
-
-  let halfPi = PI / 2.0
-
-  if dist.df == 1:
-    pmut = pmut * halfPi
-    return sign * cos(pmut) / sin(pmut)
-
-  var a = 1.0 / (dist.df.float - 0.5)
-  var b = 48.0 / (a * a)
-  var c = ((20700.0 * a / b - 98.0) * a - 16.0) * a + 96.36
-  var d = ((94.5 / (b + c) - 3.0) / b + 1.0) * sqrt(a * half_pi) * dist.df.float
-  var x = d * pmut
-  var y = pow(x, 2.0 / dist.df.float)
-
-  if y > 0.05 + a:
-    # asymptotic inverse expansion about normal
-    x = initNormalDistribution(0.0, 1.0).ppf(pmut * 0.5)
-    y = x * x
-    if (dist.df < 5):
-      c += 0.3 * (dist.df.float - 4.5) * (x + 0.6)
-    c = (((0.05 * d * x - 5.0) * x - 7.0) * x - 2.0) * x + b + c
-    y = (((((0.4 * y + 6.3) * y + 36.0) * y + 94.5) / c - y - 3.0) / b + 1.0) * x
-    y = a * y * y
-    y = if y > 0.002: exp(y) - 1.0 else: 0.5 * y * y + y
+func mean*[T: SomeFloat](d: TDistribution[T]): T {.raises: [ValueError].} =
+  ## Mean: ``0`` for ``df > 1``. Raises ``ValueError`` for ``df ≤ 1``.
+  if d.df > 1:
+    T(0.0)
   else:
-      y = ((1.0 / (((dist.df.float + 6.0) / (dist.df.float * y) - 0.089 * d - 0.822) * (dist.df.float + 2.0) * 3.0) + 0.5 / (dist.df.float + 4.0)) * y - 1.0) * (dist.df.float + 1.0) / (dist.df.float + 2.0) + 1.0 / y
-  return sign * sqrt(dist.df.float * y)
+    raise newException(ValueError, "mean undefined for df <= 1")
+
+func median*[T: SomeFloat](d: TDistribution[T]): T =
+  ## Median: ``0``.
+  T(0.0)
+
+func mode*[T: SomeFloat](d: TDistribution[T]): T =
+  ## Mode: ``0``.
+  T(0.0)
+
+func variance*[T: SomeFloat](d: TDistribution[T]): T {.raises: [ValueError].} =
+  ## Variance: ``df / (df-2)`` for ``df > 2``. Raises ``ValueError`` for ``df ≤ 2``.
+  if d.df <= 2:
+    raise newException(ValueError, "variance requires df > 2")
+  T(d.df) / T(d.df - 2)
+
+func pdf*[T: SomeFloat](d: TDistribution[T], x: T): T =
+  ## Probability Density Function (PDF) for TDistribution.
+  let fd = T(d.df)
+  let c1 = lgamma((fd + T(1.0)) / T(2.0)) - lgamma(fd / T(2.0))
+  let c2 = T(0.5) * ln(T(PI) * fd)
+  exp(c1 - c2 - ((fd + T(1.0)) / T(2.0)) * ln(T(1.0) + pow2(x) / fd))
+
+func cdf*[T: SomeFloat](d: TDistribution[T], x: T): T =
+  ## Cumulative Distribution Function (CDF) for TDistribution.
+  let fd = T(d.df)
+  let s = sqrt(x * x + fd)
+  regularized_lower_incomplete_beta(fd / T(2.0), fd / T(2.0), (x + s) / (T(2.0) * s))
+
+func sf*[T: SomeFloat](d: TDistribution[T], x: T): T =
+  ## Survival Function (SF): 1 - CDF for TDistribution.
+  T(1.0) - d.cdf(x)
+
+func ppf*[T: SomeFloat](d: TDistribution[T], p: T): T =
+  ## Percent Point Function (quantile, inverse CDF) for TDistribution.
+  ##
+  ## Port of Algorithm 396 (Hill, 1970): Student's t-quantiles.
+  ## Returns `-Inf` for `p <= 0`, `Inf` for `p >= 1`.
+  if p <= T(0.0):
+    return -Inf
+  if p >= T(1.0):
+    return Inf
+
+  let fd = T(d.df)
+
+  let sign = if p < T(0.5): T(-1.0) else: T(1.0)
+  var pmut: T = p
+  if p < T(0.5):
+    pmut = T(1.0) - pmut
+
+  pmut = T(2.0) * (T(1.0) - pmut)
+
+  if d.df == 2:
+    return T(sign * sqrt(T(2.0) / (pmut * (T(2.0) - pmut)) - T(2.0)))
+
+  let halfPi = T(PI) / T(2.0)
+
+  if d.df == 1:
+    pmut = pmut * halfPi
+    return T(sign * cos(pmut) / sin(pmut))
+
+  var a = T(1.0) / (fd - T(0.5))
+  var b = T(48.0) / (a * a)
+  var c = ((T(20700.0) * a / b - T(98.0)) * a - T(16.0)) * a + T(96.36)
+  var d0 = ((T(94.5) / (b + c) - T(3.0)) / b + T(1.0)) * sqrt(a * halfPi) * fd
+  var x = d0 * pmut
+  var y = pow(x, T(2.0) / fd)
+
+  if y > T(0.05) + a:
+    x = sqrt(T(2.0)) * inverse_erf(pmut - T(1.0))
+    y = pow2(x)
+    if d.df < 5:
+      c += T(0.3) * (fd - T(4.5)) * (x + T(0.6))
+    c = (((T(0.05) * d0 * x - T(5.0)) * x - T(7.0)) * x - T(2.0)) * x + b + c
+    y = (((((T(0.4) * y + T(6.3)) * y + T(36.0)) * y + T(94.5)) / c - y -
+        T(3.0)) / b + T(1.0)) * x
+    y = a * y * y
+    y = if y > T(0.002): exp(y) - T(1.0) else: T(0.5) * y * y + y
+  else:
+    y = ((T(1.0) / (((fd + T(6.0)) / (fd * y) - T(0.089) * d0 - T(0.822)) *
+        (fd + T(2.0)) * T(3.0)) + T(0.5) / (fd + T(4.0))) * y - T(1.0)) *
+        (fd + T(1.0)) / (fd + T(2.0)) + T(1.0) / y
+
+  T(sign * sqrt(fd * y))
+
+{.pop.}

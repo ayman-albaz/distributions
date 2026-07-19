@@ -5,6 +5,9 @@
 nimcache/
 build/
 docs/build/
+htmldocs/
 .cache
 .DS_Store
 .vscode
+PLAN.md
+STATUS.md

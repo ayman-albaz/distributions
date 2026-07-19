@@ -1,63 +1,73 @@
-import math
-import mathutils
-import special_functions
-import base, utils
+{.experimental: "strictFuncs".}
+{.push raises: [].}
 
-type 
-  Chi2Distribution* = object of DistributionContinuous
-    ##[
-    'The chi-square distribution is used in the common chi-square tests 
-    for goodness of fit of an observed distribution to a theoretical one, 
-    the independence of two criteria of classification of qualitative data, 
-    and in confidence interval estimation for a population standard deviation 
-    of a normal distribution from a sample standard deviation. Many other statistical 
-    tests also use this distribution, such as Friedman's analysis of variance by ranks.' ~ Wikipedia
-    https://en.wikipedia.org/wiki/Chi-square_distribution
-    ]##
+import std/math
+import special_functions
+import distributions/[base]
+
+## Chi-squared distribution — sum of squares of ``df`` independent
+## standard normal random variables.
+## <https://en.wikipedia.org/wiki/Chi-squared_distribution>
+
+type
+  Chi2Distribution*[T: SomeFloat] = object of DistributionContinuous
     df*: int
 
-func initChi2Distribution*(df: int): Chi2Distribution = 
-  if df <= 0:
-    raise newException(ValueError, "df must be > 0.")
+func initChi2Distribution*[T: SomeFloat](df: int): Chi2Distribution[T] {.raises: [ValueError].} =
+  ## Construct a Chi-squared distribution with `df` degrees of freedom.
+  ## `df` must be >= 1.
+  validatePositive("df", df)
   result.df = df
 
-func mean*(dist: Chi2Distribution): float =
-  result = dist.df.float
+func mean*[T: SomeFloat](d: Chi2Distribution[T]): T =
+  ## Mean: ``df``.
+  T(d.df)
 
-func median*(dist: Chi2Distribution): float =
-  result = dist.df.float * pow3(1 - 2 / (9 * dist.df))
+func median*[T: SomeFloat](d: Chi2Distribution[T]): T =
+  ## Median is the 0.5-quantile via ``inverse_regularized_lower_incomplete_gamma``.
+  d.ppf(T(0.5))
 
-func mode*(dist: Chi2Distribution): float =
-  result = max(dist.df - 2, 0).float
+func mode*[T: SomeFloat](d: Chi2Distribution[T]): T =
+  ## Mode: ``max(df-2, 0)``.
+  max(T(d.df - 2), T(0.0))
 
-func variance*(dist: Chi2Distribution): float =
-  result = 2 * dist.df.float
+func variance*[T: SomeFloat](d: Chi2Distribution[T]): T =
+  ## Variance: ``2·df``.
+  T(2.0) * T(d.df)
 
-func pdf*(dist: Chi2Distribution, chi2: PositiveFloat): float =
-  ##[
-    Probability Density Function (PDF) for Chi2Distribution.
-    Accurate for up-to 14 decimal place.
-  ]##
-  result = pow(chi2, (dist.df.float / 2.float - 1)) * pow(E, -chi2 / 2.0) / (pow(2.0, dist.df.float / 2.0) * gamma(dist.df.float / 2.0))
+func pdf*[T: SomeFloat](d: Chi2Distribution[T], x: T): T =
+  ## Probability Density Function (PDF) for Chi2Distribution.
+  if x <= T(0.0):
+    if x == T(0.0) and d.df == 1:
+      return Inf
+    if x == T(0.0) and d.df == 2:
+      return T(0.5)
+    return T(0.0)
+  let df2 = T(d.df) / T(2.0)
+  exp((df2 - T(1.0)) * ln(x) - x / T(2.0) - lgamma(df2) - df2 * ln(T(2.0)))
 
-func cdf*(dist: Chi2Distribution, chi2: PositiveFloat): float = 
-  ##[
-    Cumulative Density Function (CDF) for Chi2Distribution.
-    Accurate for up-to 14 decimal place.
-  ]##
-  result = regularized_lower_incomplete_gamma(dist.df.float / 2.0, chi2 / 2.0)
+func cdf*[T: SomeFloat](d: Chi2Distribution[T], x: T): T =
+  ## Cumulative Distribution Function (CDF) for Chi2Distribution.
+  if x <= T(0.0):
+    T(0.0)
+  else:
+    regularized_lower_incomplete_gamma(T(d.df) / T(2.0), x / T(2.0))
 
-func sf*(dist: Chi2Distribution, chi2: PositiveFloat): float =
-  ##[
-    Survival function (sf) for Chi2Distribution.
-    Equivalent to 1 - cdf.
-    Accurate for up-to 14 decimal place.
-  ]##
-  result = 1 - dist.cdf(chi2)
+func sf*[T: SomeFloat](d: Chi2Distribution[T], x: T): T =
+  ## Survival Function (SF): 1 - CDF for Chi2Distribution.
+  T(1.0) - d.cdf(x)
 
-func ppf*(dist: Chi2Distribution, p: FractionPositiveFloat): float =
-  ##[
-    Point prevalence function (ppf) for Chi2Distribution.
-    Accurate for up-to 14 decimal place.
-  ]##
-  result = inverse_regularized_lower_incomplete_gamma(dist.df / 2, p) * 2
+func ppf*[T: SomeFloat](d: Chi2Distribution[T], p: T): T =
+  ## Percent Point Function (quantile, inverse CDF) for Chi2Distribution.
+  if p <= T(0.0):
+    T(0.0)
+  elif p >= T(1.0):
+    Inf
+  else:
+    let v = inverse_regularized_lower_incomplete_gamma(T(d.df) / T(2.0), p)
+    if v <= T(0.0):
+      Inf
+    else:
+      v * T(2.0)
+
+{.pop.}

@@ -1,19 +1,11 @@
-import math
-import times
-import unittest
+import std/math
+import std/unittest
+import std/random
 
 import distributions
 
-
 suite "NormalDistribution":
-  
   const r1 = 14
-
-  setup:
-    let t0 = getTime()
-
-  teardown:
-    echo "\n  RUNTIME: ", getTime() - t0
 
   test "NormalDistribution(0.0, 1.0).mean()":
     let normal_dist = initNormalDistribution(0.0, 1.0)
@@ -79,9 +71,11 @@ suite "NormalDistribution":
     let normal_dist = initNormalDistribution(0.0, 1.0)
     check normal_dist.ppf(0.75).round(r1) == 0.6744897501960817.round(r1)
 
-  test "NormalDistribution(0.0, 1.0).rand()":
-    let normal_dist = initNormalDistribution(0.0, 1.0)
-    var x: seq[float]
-    for i in 1..1000: x.add(normal_dist.rand())
-    check x.mean().round(1) == normal_dist.mean().round(1)
-    check x.variance().round(1) == normal_dist.variance().round(1)
+  test "NormalDistribution(0.0, 1.0).sample() using seeded RNG":
+    var r = initRand(0xDEADBEEF)
+    let d = initNormalDistribution(0.0, 1.0)
+    var total = 0.0
+    const n = 100_000
+    for i in 0 ..< n:
+      total += d.sample(r)
+    check abs(total / float(n) - 0.0) < 0.02

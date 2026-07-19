@@ -1,19 +1,10 @@
-import math
-import times
-import unittest
+import std/math
+import std/unittest
 
 import distributions
 
-
 suite "BetaDistribution":
-  
   const r1 = 14
-
-  setup:
-    let t0 = getTime()
-
-  teardown:
-    echo "\n  RUNTIME: ", getTime() - t0
 
   test "BetaDistribution(0.5, 0.5).mean()":
     let beta_dist = initBetaDistribution(0.5, 0.5)
@@ -38,18 +29,6 @@ suite "BetaDistribution":
   test "BetaDistribution(2.0, 2.0).median()":
     let beta_dist = initBetaDistribution(2.0, 2.0)
     check beta_dist.median().round(r1) == 0.5.round(r1)
-
-  test "BetaDistribution(0.5, 0.5).mode()":
-    let beta_dist = initBetaDistribution(0.5, 0.5)
-    check beta_dist.mode().round(r1) == 0.5.round(r1)
-
-  test "BetaDistribution(1.0, 1.0).mode()":
-    let beta_dist = initBetaDistribution(1.0, 1.0)
-    check beta_dist.mode().round(r1) == 0.5.round(r1)
-
-  test "BetaDistribution(2.0, 2.0).mode()":
-    let beta_dist = initBetaDistribution(2.0, 2.0)
-    check beta_dist.mode().round(r1) == 0.5.round(r1)
 
   test "BetaDistribution(0.5, 0.5).variance()":
     let beta_dist = initBetaDistribution(0.5, 0.5)
@@ -114,3 +93,15 @@ suite "BetaDistribution":
   test "BetaDistribution(3.0, 3.0).ppf(0.25)":
     let beta_dist = initBetaDistribution(3.0, 3.0)
     check beta_dist.ppf(0.25).round(r1) == 0.3594361647896471.round(r1)
+
+  test "BetaDistribution(0.5, 0.5).mode raises":
+    expect ValueError:
+      discard initBetaDistribution(0.5, 0.5).mode()
+
+  test "BetaDistribution(1.0, 1.0).mode raises":
+    expect ValueError:
+      discard initBetaDistribution(1.0, 1.0).mode()
+
+  test "BetaDistribution(2.0, 2.0).mode()":
+    let beta_dist = initBetaDistribution(2.0, 2.0)
+    check beta_dist.mode().round(r1) == 0.5.round(r1)

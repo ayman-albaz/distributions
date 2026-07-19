@@ -1,68 +1,69 @@
 ![Linux Build Status (Github Actions)](https://github.com/ayman-albaz/distributions/actions/workflows/install_and_test.yml/badge.svg) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # Distributions
-Distributions is a Nim library for distributions and their functions.
-
+Distributions is a Nim library for probability distributions and their functions. Generic over `float32` and `float64`.
 
 ## Supported Distributions
-| Distribution       | Nim Command                                                               |
-|--------------------|---------------------------------------------------------------------------|
-| Bernoulli          | `initBernoulliDistribution(p: FractionPositiveFloat)`                     |
-| Beta               | `initBetaDistribution(alpha, beta: PositiveFloat)`                        |
-| Binomial           | `initBinomialDistribution(n: Positive, p: FractionPositiveFloat)`         |
-| Chisquare          | `initChi2Distribution(df: int)`                                           |
-| F                  | `initFDistribution(df_1, df_2: Positive)`                                 |
-| Gamma              | `initGammaDistribution(k, theta: PositiveFloat)`                          |
-| Negative Binomial  | `initNegativeBinomialDistribution(r: Positive, p: FractionPositiveFloat)` |
-| Normal             | `initNormalDistribution(mu: float = 0.0, sigma: PositiveFloat = 1.0)`     |
-| Poisson            | `initPoissonDistribution(lambda: PositiveFloat)`                          |
-| t                  | `initTDistribution(df: Natural)`                                          |
-| Uniform Continuous | `initUniformContinuousDistribution(a, b: float)`                          |
-| Uniform Discrete   | `initUniformDiscreteDistribution(a, b: int)`                              |
-|                    |                                                                           |
+| Distribution       | Nim Command                                        |
+|--------------------|----------------------------------------------------|
+| Bernoulli          | `initBernoulliDistribution(p = 0.5)`               |
+| Beta               | `initBetaDistribution(alpha = 2.0, beta = 2.0)`    |
+| Binomial           | `initBinomialDistribution(n = 10, p = 0.5)`        |
+| Chisquare          | `initChi2Distribution[float64](df = 1)`            |
+| F                  | `initFDistribution[float64](df1 = 3, df2 = 5)`     |
+| Gamma              | `initGammaDistribution(k = 2.0, theta = 1.0)`      |
+| Negative Binomial  | `initNegativeBinomialDistribution(r = 10, p = 0.5)`|
+| Normal             | `initNormalDistribution(mu = 0.0, sigma = 1.0)`    |
+| Poisson            | `initPoissonDistribution(lambda = 10.0)`           |
+| t                  | `initTDistribution[float64](df = 3)`               |
+| Uniform Continuous | `initUniformContinuousDistribution(a = 0.0, b = 1.0)`|
+| Uniform Discrete   | `initUniformDiscreteDistribution[float64](a = 0, b = 1)`|
+
+Type parameter defaults to `float64` and is inferred from float arguments. Distributions with only `int` parameters (Chi2, F, t, UniformDiscrete) require an explicit type, e.g. `initChi2Distribution[float64](1)`. For `float32`, pass `float32` literals: `initNormalDistribution(0.0'f32, 1.0'f32)`.
 
 ## Supported Functions
-```Nim
-let normal_dist = initNormalDistribution(0.0, 1.0)
-discard normal_dist.mean()		# Mean
-discard normal_dist.median()		# Median
-discard normal_dist.mode()		# Mode
-discard normal_dist.pdf()		# Probability density function (use .pmf() for discrete distributions)
-discard normal_dist.cdf()		# Cumulative density function
-discard normal_dist.sf()		# Survival function (1 - cdf)
-discard normal_dist.ppf()		# Point prevalence function
+```nim
+let d = initNormalDistribution(0.0, 1.0)
+discard d.mean()     # Mean
+discard d.median()   # Median
+discard d.mode()     # Mode
+discard d.pdf(x)     # Probability density function
+discard d.pmf(k)     # Probability mass function (discrete distributions)
+discard d.cdf(x)     # Cumulative distribution function
+discard d.sf(x)      # Survival function (1 - cdf)
+discard d.ppf(p)     # Percent point function (quantile, inverse CDF)
+
+# Sampling (Normal only)
+import std/random
+var r = initRand(0xDEADBEEF)
+discard d.sample(r)
 ```
 
-
-## Future Directions:
-There are really two directions this library can grow.
-1. Write more distributions in Nim.
-	- Pros: Library is in Nim.
-	- Cons: Longer dev time, calculations are more error prone.
-2. Implement all functions using a C-wrapper around the Rmath library.
-	- Pros: Reduced dev time, calculations are less error prone.
-	- Cons: Library is written in C and hard to read (its filled with macros).
-
-I don't have a preferred direction and I prefer to leave the answer for the Nim scientific community to answer.
-
-
 ## Accuracy
-Most functions in this library are accurate up-to 14 decimal places (float64).
+~1e-13 relative where convergent (float64); ~1e-5 (float32).
 
+## API design
 
-## Performance
-This library was written with accuracy as a top priority as opposed to performance, however almost all implementations here are faster than SciPy's implementations and equal to, slower, or faster than Julia's distributions implementations. 
+The library uses Nim's compile-time overload resolution: each distribution
+defines its own `pdf`, `cdf`, `ppf`, etc. — there is no runtime dispatch
+through a `Distribution` base type.  This means that `seq[Distribution].mapIt(it.pdf(0.5))`
+does **not** work; callers must alias the concrete distribution type.
 
+## Requirements
+- Nim >= 2.0.0
+- [special_functions](https://github.com/ayman-albaz/special-functions) >= 1.0.0
+
+## Install
+```
+nimble install distributions
+```
 
 ## TODO
-List is organized from most important to least important:
-- Add more functions for each distribution (in this order: random, fit, CF, skewness, etc...)
-- Add more univariate distributions on an as-need-bases
-- Bonus: Add multivariate distributions on an as-need-bases
-
+- Add sampling for the other distributions.
+- Add more distributions on an as-needed basis.
+- Add fit, CF, skewness functions.
 
 Performance, feature, and documentation PR's are always welcome.
-
 
 ## Contact
 I can be reached at aymanalbaz98@gmail.com

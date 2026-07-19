@@ -1,62 +1,78 @@
-import math
-import mathutils
+{.experimental: "strictFuncs".}
+{.push raises: [].}
+
+import std/math
 import special_functions
-import base, utils
+import distributions/[base, mathutils]
 
-type 
-  NegativeBinomialDistribution* = object of DistributionContinuous
-    ##[
-      'In probability theory and statistics, the negative binomial distribution 
-      is a discrete probability distribution that models the number of successes 
-      in a sequence of independent and identically distributed Bernoulli trials 
-      before a specified (non-random) number of failures (denoted r) occurs.' ~ Wikipedia
-      https://en.wikipedia.org/wiki/Negative_binomial_distribution
-    ]##
-    r*: Positive
-    p*: FractionPositiveFloat
+## Negative binomial distribution — number of failures ``k``
+## before ``r`` successes with success probability ``p``
+## (mean = ``r·(1-p)/p``).
+## <https://en.wikipedia.org/wiki/Negative_binomial_distribution>
 
-func initNegativeBinomialDistribution*(r: Positive, p: FractionPositiveFloat): NegativeBinomialDistribution =
-  result = NegativeBinomialDistribution(r: r, p: p)
+type
+  NegativeBinomialDistribution*[T: SomeFloat] = object of DistributionDiscrete
+    r*: int
+    p*: T
 
-func mean*(dist: NegativeBinomialDistribution): float =
-  result = (dist.r.float * (1 - dist.p)) / dist.p
+func initNegativeBinomialDistribution*[T: SomeFloat](
+    r: int, p: T): NegativeBinomialDistribution[T] {.raises: [ValueError].} =
+  ## Construct a Negative Binomial distribution with `r` failures before stopping
+  ## and success probability `p`.  `r` must be >= 1; `p` must be in `[0, 1]`.
+  validatePositive("r", r)
+  validateFraction("p", p)
+  result.r = r
+  result.p = p
 
-func mode*(dist: NegativeBinomialDistribution): float =
-  if dist.r <= 1: result = 0.0
-  else: result = ((dist.r - 1).float * (1 - dist.p)) / dist.p
+func mean*[T: SomeFloat](d: NegativeBinomialDistribution[T]): T =
+  ## Mean: ``r·(1-p)/p``.
+  T(d.r) * (T(1.0) - d.p) / d.p
 
-func variance*(dist: NegativeBinomialDistribution): float =
-  result = (dist.r.float * (1 - dist.p)) / pow2(dist.p)
+proc median*[T: SomeFloat](d: NegativeBinomialDistribution[T]): T {.raises: [ValueError].} =
+  ## Median is the 0.5-quantile via `discretePpf`.
+  T(d.ppf(T(0.5)))
 
-func pmf*(dist: NegativeBinomialDistribution, k: Natural): float =
-  ##[
-    Probability Density Function (PDF) for NegativeBinomialDistribution.
-    Accurate for up-to 14 decimal place.
-  ]##
-  result = binom(k + dist.r - 1, k).float * pow(1.0 - dist.p, dist.r.float) * pow(dist.p, k.float)
+func mode*[T: SomeFloat](d: NegativeBinomialDistribution[T]): T =
+  ## Mode: ``(r-1)·(1-p)/p`` for ``r > 1``, ``0`` for ``r = 1``.
+  if d.r <= 1:
+    T(0.0)
+  else:
+    T(d.r - 1) * (T(1.0) - d.p) / d.p
 
-func cdf*(dist: NegativeBinomialDistribution, k: Natural): float = 
-  ##[
-    Cumulative Density Function (CDF) for NegativeBinomialDistribution.
-    Accurate for up-to 14 decimal place.
-  ]##
-  result = 1 - regularized_lower_incomplete_beta((k + 1).float, dist.r.float, dist.p)
+func variance*[T: SomeFloat](d: NegativeBinomialDistribution[T]): T =
+  ## Variance: ``r·(1-p)/p²``.
+  T(d.r) * (T(1.0) - d.p) / pow2(d.p)
 
-func sf*(dist: NegativeBinomialDistribution, k: Natural): float =
-  ##[
-    Survival function (sf) for NegativeBinomialDistribution.
-    Equivalent to 1 - cdf.
-    Accurate for up-to 14 decimal place.
-  ]##
-  result = 1 - dist.cdf(k)
+func pmf*[T: SomeFloat](d: NegativeBinomialDistribution[T], k: int): T =
+  ## Probability Mass Function (PMF) for NegativeBinomialDistribution.
+  ##
+  ## Counts failures `k` before `r` successes with success probability `p`.
+  ## PMF(k) = C(k+r-1, k) · p^r · (1-p)^k.
+  if k < 0:
+    return T(0.0)
+  if d.p == T(0.0):
+    return T(0.0)
+  exp(lfac(k + d.r - 1) - lfac(k) - lfac(d.r - 1) +
+      T(d.r) * ln(d.p) + T(k) * ln(T(1.0) - d.p))
 
-func ppf*(dist: NegativeBinomialDistribution, p: FractionPositiveFloat): int = 
-  ##[
-    Point prevalence function (ppf) for BinomialDistribution.
-    Accurate for up-to 14 decimal place.
-  ]##
-  var k = 1
-  while true:
-    if dist.cdf(k) >= p:
-      return k
-    k += 1 
+func cdf*[T: SomeFloat](d: NegativeBinomialDistribution[T], k: int): T =
+  ## Cumulative Distribution Function (CDF) for NegativeBinomialDistribution.
+  ## CDF is 1 - I_p(k+1, r), equivalently I_{1-p}(r, k+1).
+  if k < 0:
+    T(0.0)
+  else:
+    T(1.0) - regularized_lower_incomplete_beta(float(k + 1), float(d.r), d.p)
+
+func sf*[T: SomeFloat](d: NegativeBinomialDistribution[T], k: int): T =
+  ## Survival Function (SF): 1 - CDF for NegativeBinomialDistribution.
+  T(1.0) - d.cdf(k)
+
+proc ppf*[T: SomeFloat](d: NegativeBinomialDistribution[T], p: T): int {.raises: [ValueError].} =
+  ## Percent Point Function (quantile, inverse CDF) for NegativeBinomialDistribution.
+  ## Returns `0` for `p <= 0`.
+  if p <= T(0.0):
+    0
+  else:
+    discretePpf(proc(k: int): T {.closure, raises: [].} = d.cdf(k), p, start = 0)
+
+{.pop.}

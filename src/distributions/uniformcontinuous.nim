@@ -1,57 +1,68 @@
-import base, mathutils
+{.experimental: "strictFuncs".}
+{.push raises: [].}
 
-type 
-  UniformContinuousDistribution* = object of DistributionContinuous
-    a*: float
-    b*: float
+import distributions/[base, mathutils]
 
-func initUniformContinuousDistribution*(a, b: float): UniformContinuousDistribution = 
+## Uniform continuous distribution on ``[a, b]`` (``a < b``).
+## <https://en.wikipedia.org/wiki/Continuous_uniform_distribution>
+
+type
+  UniformContinuousDistribution*[T: SomeFloat] = object of DistributionContinuous
+    a*: T
+    b*: T
+
+func initUniformContinuousDistribution*[T: SomeFloat](
+    a, b: T): UniformContinuousDistribution[T] {.raises: [ValueError].} =
+  ## Construct a Uniform continuous distribution on `[a, b]`.
+  ## Requires `a < b`.
+  if a >= b:
+    raise newException(ValueError, "a must be < b; got a=" & $a & ", b=" & $b)
   result.a = a
   result.b = b
 
-func mean*(dist: UniformContinuousDistribution): float =
-  result = 0.5 * (dist.a + dist.b)
+func mean*[T: SomeFloat](d: UniformContinuousDistribution[T]): T =
+  ## Mean: ``(a+b)/2``.
+  T(0.5) * (d.a + d.b)
 
-func median*(dist: UniformContinuousDistribution): float =
-  result = 0.5 * (dist.a + dist.b)
+func median*[T: SomeFloat](d: UniformContinuousDistribution[T]): T =
+  ## Median: ``(a+b)/2``.
+  T(0.5) * (d.a + d.b)
 
-func mode*(dist: UniformContinuousDistribution): float =
-  result = 0.5 * (dist.a + dist.b)
+func mode*[T: SomeFloat](d: UniformContinuousDistribution[T]): T =
+  ## Mode: ``(a+b)/2``.
+  T(0.5) * (d.a + d.b)
 
-func variance*(dist: UniformContinuousDistribution): float =
-  result = pow2(dist.b - dist.a) / 12.0
+func variance*[T: SomeFloat](d: UniformContinuousDistribution[T]): T =
+  ## Variance: ``(b-a)² / 12``.
+  pow2(d.b - d.a) / T(12.0)
 
-func pdf*(dist: UniformContinuousDistribution, x: float): float =
-  ##[
-    Probability Density Function (PDF) for UniformContinuousDistribution.
-    Accurate for up-to 15 decimal place.
-  ]##
-  if x < dist.a or x > dist.b:
-    return 0.0
-  return 1.0 / (dist.b - dist.a)
+func pdf*[T: SomeFloat](d: UniformContinuousDistribution[T], x: T): T =
+  ## Probability Density Function (PDF) for UniformContinuousDistribution.
+  if x < d.a or x > d.b:
+    T(0.0)
+  else:
+    T(1.0) / (d.b - d.a)
 
-func cdf*(dist: UniformContinuousDistribution, x: float): float = 
-  ##[
-    Cumulative Density Function (CDF) for UniformContinuousDistribution.
-    Accurate for up-to 15 decimal place.
-  ]##
-  if x < dist.a:
-    return 0.0
-  elif x > dist.b:
-    return 1.0
-  return (x - dist.a) / (dist.b - dist.a)
+func cdf*[T: SomeFloat](d: UniformContinuousDistribution[T], x: T): T =
+  ## Cumulative Distribution Function (CDF) for UniformContinuousDistribution.
+  if x < d.a:
+    T(0.0)
+  elif x > d.b:
+    T(1.0)
+  else:
+    (x - d.a) / (d.b - d.a)
 
-func sf*(dist: UniformContinuousDistribution, x: float): float =
-  ##[
-    Survival function (sf) for UniformContinuousDistribution.
-    Equivalent to 1 - cdf.
-    Accurate for up-to 15 decimal place.
-  ]##
-  result = 1 - dist.cdf(x)
+func sf*[T: SomeFloat](d: UniformContinuousDistribution[T], x: T): T =
+  ## Survival Function (SF): 1 - CDF for UniformContinuousDistribution.
+  T(1.0) - d.cdf(x)
 
-func ppf*(dist: UniformContinuousDistribution, p: float): float =
-  ##[
-    Point prevalence function (ppf) for UniformContinuousDistribution.
-    Accurate for up-to 15 decimal place.
-  ]##
-  result = p * (dist.b - dist.a) +  dist.a
+func ppf*[T: SomeFloat](d: UniformContinuousDistribution[T], p: T): T =
+  ## Percent Point Function (quantile, inverse CDF) for UniformContinuousDistribution.
+  if p <= T(0.0):
+    d.a
+  elif p >= T(1.0):
+    d.b
+  else:
+    p * (d.b - d.a) + d.a
+
+{.pop.}

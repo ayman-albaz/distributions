@@ -1,14 +1,44 @@
-name: InstallAndTest
+name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
 
 jobs:
-  tests:
-    runs-on: ubuntu-latest
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        nim-version: ["2.0.0", "2.2.0"]
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: jiro4989/setup-nim-action@v1
+      - uses: actions/checkout@v4
+
+      - uses: jiro4989/setup-nim-action@v2
         with:
-          nim-version: '1.4.6'
-      - run: nimble install -y
-      - run: nimble test -y
+          nim-version: ${{ matrix.nim-version }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install dependencies
+        run: nimble install -y
+
+      - name: Check package
+        run: nimble check
+
+      - name: Check compilation
+        run: nim check --path:src src/distributions.nim
+
+      - name: Run tests
+        run: nimble test
+
+      - name: Build documentation
+        run: nim doc --path:src --project --index:on --outdir:htmldocs src/distributions.nim
+
+      - name: Upload documentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-${{ matrix.os }}-nim-${{ matrix.nim-version }}
+          path: htmldocs/

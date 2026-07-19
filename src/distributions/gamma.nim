@@ -1,56 +1,80 @@
-import math
-import mathutils
+{.experimental: "strictFuncs".}
+{.push raises: [].}
+
+import std/math
 import special_functions
-import base, utils
+import distributions/[base, mathutils]
 
-type 
-  GammaDistribution* = object of DistributionContinuous
-    ##[
-      https://en.wikipedia.org/wiki/distribution
-    ]##
-    k*: PositiveFloat
-    theta*: PositiveFloat
+## Gamma distribution — continuous distribution with shape ``k``
+## and scale ``theta`` (mean = ``k·theta``).
+## <https://en.wikipedia.org/wiki/Gamma_distribution>
 
-func initGammaDistribution*(k, theta: PositiveFloat): GammaDistribution = 
+type
+  GammaDistribution*[T: SomeFloat] = object of DistributionContinuous
+    k*: T
+    theta*: T
+
+func initGammaDistribution*[T: SomeFloat](
+    k, theta: T): GammaDistribution[T] {.raises: [ValueError].} =
+  ## Construct a Gamma distribution with shape `k` and scale `theta`.
+  ## Both must be > 0.
+  validatePositive("k", k)
+  validatePositive("theta", theta)
   result.k = k
   result.theta = theta
 
-func mean*(dist: GammaDistribution): float =
-  result = dist.k * dist.theta
+func mean*[T: SomeFloat](d: GammaDistribution[T]): T =
+  ## Mean: ``k·theta``.
+  d.k * d.theta
 
-func mode*(dist: GammaDistribution): float =
-  if dist.k < 1.0: result = 0
-  else: result = dist.theta * (dist.k - 1.0)
+func median*[T: SomeFloat](d: GammaDistribution[T]): T =
+  ## Median is the 0.5-quantile via `inverse_regularized_lower_incomplete_gamma`.
+  d.ppf(T(0.5))
 
-func variance*(dist: GammaDistribution): float =
-  result = dist.k  * pow2(dist.theta)
+func mode*[T: SomeFloat](d: GammaDistribution[T]): T =
+  ## Returns `T(0.0)` for `k < 1` (pdf diverges to infinity at 0;
+  ## we return 0 as the limiting boundary point).
+  if d.k < T(1.0):
+    T(0.0)
+  else:
+    d.theta * (d.k - T(1.0))
 
-func pdf*(dist: GammaDistribution, x: PositiveFloat): float =
-  ##[
-    Probability Density Function (PDF) for GammaDistribution.
-    Accurate for up-to 14 decimal place.
-  ]##
-  result = pow(x, dist.k - 1.0) * pow(E, -(x / dist.theta)) / (gamma(dist.k) * pow(dist.theta, dist.k))
+func variance*[T: SomeFloat](d: GammaDistribution[T]): T =
+  ## Variance: ``k·theta²``.
+  d.k * pow2(d.theta)
 
-func cdf*(dist: GammaDistribution, x: PositiveFloat): float = 
-  ##[
-    Cumulative Density Function (CDF) for GammaDistribution.
-    Accurate for up-to 14 decimal place.
-  ]##
-  result = lower_incomplete_gamma(dist.k, x / dist.theta) / gamma(dist.k)
+func pdf*[T: SomeFloat](d: GammaDistribution[T], x: T): T =
+  ## Probability Density Function (PDF) for GammaDistribution.
+  if x < T(0.0):
+    return T(0.0)
+  if x == T(0.0):
+    if d.k == T(1.0):
+      return T(1.0) / d.theta
+    return T(0.0)
+  exp((d.k - T(1.0)) * ln(x) - x / d.theta - lgamma(d.k) - d.k * ln(d.theta))
 
-func sf*(dist: GammaDistribution, x: PositiveFloat): float =
-  ##[
-    Survival function (sf) for GammaDistribution.
-    Equivalent to 1 - cdf.
-    Accurate for up-to 14 decimal place.
-  ]##
-  result = 1 - dist.cdf(x)
+func cdf*[T: SomeFloat](d: GammaDistribution[T], x: T): T =
+  ## Cumulative Distribution Function (CDF) for GammaDistribution.
+  if x <= T(0.0):
+    T(0.0)
+  else:
+    regularized_lower_incomplete_gamma(d.k, x / d.theta)
 
+func sf*[T: SomeFloat](d: GammaDistribution[T], x: T): T =
+  ## Survival Function (SF): 1 - CDF for GammaDistribution.
+  T(1.0) - d.cdf(x)
 
-func ppf*(dist: GammaDistribution, p: FractionPositiveFloat): float =
-  ##[
-    Point prevalence function (ppf) for GammaDistribution.
-    Accurate for up-to 13 decimal place.
-  ]##
-  result = inverse_regularized_lower_incomplete_gamma(dist.k, p) + dist.theta
+func ppf*[T: SomeFloat](d: GammaDistribution[T], p: T): T =
+  ## Percent Point Function (quantile, inverse CDF) for GammaDistribution.
+  if p <= T(0.0):
+    T(0.0)
+  elif p >= T(1.0):
+    Inf
+  else:
+    let v = inverse_regularized_lower_incomplete_gamma(d.k, p)
+    if v <= T(0.0):
+      Inf
+    else:
+      v * d.theta
+
+{.pop.}

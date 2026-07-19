@@ -1,19 +1,10 @@
-import math
-import times
-import unittest
+import std/math
+import std/unittest
 
 import distributions
 
-
 suite "BernoulliDistribution":
-  
-  const r1 = 15
-
-  setup:
-    let t0 = getTime()
-
-  teardown:
-    echo "\n  RUNTIME: ", getTime() - t0
+  const r1 = 14
 
   test "BernoulliDistribution(0.75).mean()":
     let bernoulli_dist = initBernoulliDistribution(0.75)
@@ -23,7 +14,7 @@ suite "BernoulliDistribution":
     let bernoulli_dist = initBernoulliDistribution(0.75)
     check bernoulli_dist.median().round(r1) == 1.0.round(r1)
 
-  test "BernoulliDistribution(0.75).model()":
+  test "BernoulliDistribution(0.75).mode()":
     let bernoulli_dist = initBernoulliDistribution(0.75)
     check bernoulli_dist.mode().round(r1) == 1.0.round(r1)
 
@@ -65,4 +56,4 @@ suite "BernoulliDistribution":
 
   test "BernoulliDistribution(0.75).ppf(1.0)":
     let bernoulli_dist = initBernoulliDistribution(0.75)
-    check bernoulli_dist.ppf(1) == 1
+    check bernoulli_dist.ppf(1.0) == 1
