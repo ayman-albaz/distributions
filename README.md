@@ -43,13 +43,6 @@ discard initPoissonDistribution(5.0).sample(r)         # discrete → int
 ## Accuracy
 ~1e-13 relative where convergent (float64); ~1e-5 (float32).
 
-## API design
-
-The library uses Nim's compile-time overload resolution: each distribution
-defines its own `pdf`, `cdf`, `ppf`, etc. — there is no runtime dispatch
-through a `Distribution` base type.  This means that `seq[Distribution].mapIt(it.pdf(0.5))`
-does **not** work; callers must alias the concrete distribution type.
-
 ## Requirements
 - Nim >= 2.0.0
 - [special_functions](https://github.com/ayman-albaz/special-functions) >= 1.0.0

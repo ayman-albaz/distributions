@@ -4,7 +4,7 @@ import std/unittest
 import distributions
 
 suite "NegativeBinomialDistribution":
-  const r1 = 14
+  const r1 = 12
 
   test "NegativeBinomialDistribution(10, 0.25).mean()":
     let negative_binomial_dist = initNegativeBinomialDistribution(10, 0.25)

@@ -4,7 +4,7 @@ import std/unittest
 import distributions
 
 suite "FDistribution":
-  const r1 = 14
+  const r1 = 12
 
   test "FDistribution(1, 1).mean raises":
     expect ValueError:

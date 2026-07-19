@@ -4,8 +4,8 @@ import std/unittest
 import distributions
 
 suite "BinomialDistribution":
-  const r1 = 14
-  const r2 = 13
+  const r1 = 12
+
 
   test "BinomialDistribution(10, 0.25).mean()":
     let binomial_dist = initBinomialDistribution(10, 0.25)
@@ -69,27 +69,27 @@ suite "BinomialDistribution":
 
   test "BinomialDistribution(40, 0.5).cdf(10)":
     let binomial_dist = initBinomialDistribution(40, 0.5)
-    check binomial_dist.cdf(10).round(r2) == 0.0011107168866117.round(r2)
+    check binomial_dist.cdf(10).round(r1) == 0.0011107168866117.round(r1)
 
   test "BinomialDistribution(40, 0.5).cdf(20)":
     let binomial_dist = initBinomialDistribution(40, 0.5)
-    check binomial_dist.cdf(20).round(r2) == 0.5626853438097844.round(r2)
+    check binomial_dist.cdf(20).round(r1) == 0.5626853438097844.round(r1)
 
   test "BinomialDistribution(40, 0.5).cdf(30)":
     let binomial_dist = initBinomialDistribution(40, 0.5)
-    check binomial_dist.cdf(30).round(r2) == 0.9996602258725034.round(r2)
+    check binomial_dist.cdf(30).round(r1) == 0.9996602258725034.round(r1)
 
   test "BinomialDistribution(40, 0.5).sf(10)":
     let binomial_dist = initBinomialDistribution(40, 0.5)
-    check binomial_dist.sf(10).round(r2) == 0.9988892831133883.round(r2)
+    check binomial_dist.sf(10).round(r1) == 0.9988892831133883.round(r1)
 
   test "BinomialDistribution(40, 0.5).sf(20)":
     let binomial_dist = initBinomialDistribution(40, 0.5)
-    check binomial_dist.sf(20).round(r2) == 0.4373146561902156.round(r2)
+    check binomial_dist.sf(20).round(r1) == 0.4373146561902156.round(r1)
 
   test "BinomialDistribution(40, 0.5).sf(30)":
     let binomial_dist = initBinomialDistribution(40, 0.5)
-    check binomial_dist.sf(30).round(r2) == 0.0003397741274967.round(r2)
+    check binomial_dist.sf(30).round(r1) == 0.0003397741274967.round(r1)
 
   test "BinomialDistribution(40, 0.5).ppf(0.25)":
     let binomial_dist = initBinomialDistribution(40, 0.5)

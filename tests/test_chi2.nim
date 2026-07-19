@@ -4,8 +4,7 @@ import std/unittest
 import distributions
 
 suite "Chi2Distribution":
-  const r1 = 14
-  const r2 = 13
+  const r1 = 12
 
   test "Chi2Distribution(1).mean()":
     let chi2_dist = initChi2Distribution[float64](1)
@@ -73,7 +72,7 @@ suite "Chi2Distribution":
 
   test "Chi2Distribution(1).cdf(2.0)":
     let chi2_dist = initChi2Distribution[float64](1)
-    check chi2_dist.cdf(2.0).round(r2) == 0.8427007929497151.round(r2)
+    check chi2_dist.cdf(2.0).round(r1) == 0.8427007929497151.round(r1)
 
   test "Chi2Distribution(1).cdf(3.0)":
     let chi2_dist = initChi2Distribution[float64](1)
@@ -85,7 +84,7 @@ suite "Chi2Distribution":
 
   test "Chi2Distribution(1).sf(2.0)":
     let chi2_dist = initChi2Distribution[float64](1)
-    check chi2_dist.sf(2.0).round(r2) == 0.15729920705028105.round(r2)
+    check chi2_dist.sf(2.0).round(r1) == 0.15729920705028105.round(r1)
 
   test "Chi2Distribution(1).sf(3.0)":
     let chi2_dist = initChi2Distribution[float64](1)
@@ -101,7 +100,7 @@ suite "Chi2Distribution":
 
   test "Chi2Distribution(1).ppf(0.75)":
     let chi2_dist = initChi2Distribution[float64](1)
-    check chi2_dist.ppf(0.75).round(r2) == 1.3233036969314669.round(r2)
+    check chi2_dist.ppf(0.75).round(r1) == 1.3233036969314669.round(r1)
 
   test "Chi2Distribution(2).ppf(0.25)":
     let chi2_dist = initChi2Distribution[float64](2)

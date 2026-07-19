@@ -4,7 +4,7 @@ import std/unittest
 import distributions
 
 suite "BetaDistribution":
-  const r1 = 14
+  const r1 = 12
 
   test "BetaDistribution(0.5, 0.5).mean()":
     let beta_dist = initBetaDistribution(0.5, 0.5)

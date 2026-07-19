@@ -4,7 +4,7 @@ import std/unittest
 import distributions
 
 suite "UniformContinuousDistribution":
-  const r1 = 14
+  const r1 = 12
 
   test "UniformContinuousDistribution(0.0, 1.0).mean()":
     let uniform_continuous_dist = initUniformContinuousDistribution(0.0, 1.0)

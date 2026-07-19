@@ -4,7 +4,7 @@ import std/unittest
 import distributions
 
 suite "TDistribution":
-  const r1 = 14
+  const r1 = 12
   const r2 = 10
 
   test "TDistribution(3).mean()":

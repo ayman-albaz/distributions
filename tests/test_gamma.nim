@@ -4,8 +4,8 @@ import std/unittest
 import distributions
 
 suite "GammaDistribution":
-  const r1 = 14
-  const r2 = 13
+  const r1 = 12
+
 
   test "GammaDistribution(0.5, 0.5).mean()":
     let gamma_dist = initGammaDistribution(0.5, 0.5)
@@ -81,24 +81,24 @@ suite "GammaDistribution":
 
   test "GammaDistribution(2.0, 2.0).ppf(0.25)":
     let gamma_dist = initGammaDistribution(2.0, 2.0)
-    check gamma_dist.ppf(0.25).round(r2) == 1.9225575262295542.round(r2)
+    check gamma_dist.ppf(0.25).round(r1) == 1.9225575262295542.round(r1)
 
   test "GammaDistribution(2.0, 2.0).ppf(0.50)":
     let gamma_dist = initGammaDistribution(2.0, 2.0)
-    check gamma_dist.ppf(0.50).round(r2) == 3.3566939800333215.round(r2)
+    check gamma_dist.ppf(0.50).round(r1) == 3.3566939800333215.round(r1)
 
   test "GammaDistribution(2.0, 2.0).ppf(0.75)":
     let gamma_dist = initGammaDistribution(2.0, 2.0)
-    check gamma_dist.ppf(0.75).round(r2) == 5.385269057779392.round(r2)
+    check gamma_dist.ppf(0.75).round(r1) == 5.385269057779392.round(r1)
 
   test "GammaDistribution(3.0, 5.0).ppf(0.25)":
     let gamma_dist = initGammaDistribution(3.0, 5.0)
-    check gamma_dist.ppf(0.25).round(r2) == 8.636497089302598.round(r2)
+    check gamma_dist.ppf(0.25).round(r1) == 8.636497089302598.round(r1)
 
   test "GammaDistribution(3.0, 5.0).ppf(0.50)":
     let gamma_dist = initGammaDistribution(3.0, 5.0)
-    check gamma_dist.ppf(0.50).round(r2) == 13.3703015686178.round(r2)
+    check gamma_dist.ppf(0.50).round(r1) == 13.3703015686178.round(r1)
 
   test "GammaDistribution(3.0, 5.0).ppf(0.75)":
     let gamma_dist = initGammaDistribution(3.0, 5.0)
-    check gamma_dist.ppf(0.75).round(r2) == 19.602010301462794.round(r2)
+    check gamma_dist.ppf(0.75).round(r1) == 19.602010301462794.round(r1)

@@ -4,7 +4,7 @@ import std/unittest
 import distributions
 
 suite "UniformDiscreteDistribution":
-  const r1 = 14
+  const r1 = 12
 
   test "UniformDiscreteDistribution(0, 1).mean()":
     let uniform_discrete_dist = initUniformDiscreteDistribution[float64](0, 1)

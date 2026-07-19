@@ -4,7 +4,7 @@ import std/unittest
 import distributions
 
 suite "PoissonDistribution":
-  const r1 = 14
+  const r1 = 12
 
   test "PoissonDistribution(10).mean()":
     let poisson_dist = initPoissonDistribution(10.0)

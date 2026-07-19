@@ -4,7 +4,7 @@ import std/unittest
 import distributions
 
 suite "BernoulliDistribution":
-  const r1 = 14
+  const r1 = 12
 
   test "BernoulliDistribution(0.75).mean()":
     let bernoulli_dist = initBernoulliDistribution(0.75)

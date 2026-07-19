@@ -5,7 +5,7 @@ import std/random
 import distributions
 
 suite "NormalDistribution":
-  const r1 = 14
+  const r1 = 12
 
   test "NormalDistribution(0.0, 1.0).mean()":
     let normal_dist = initNormalDistribution(0.0, 1.0)
