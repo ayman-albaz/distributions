@@ -29,7 +29,7 @@ Fallible moments (`F.mean`/`variance`/`mode`, `t.mean`/`variance`, `Beta.mode`,
 `Bernoulli.mode`) also return `Result`. Discrete `ppf` (Binomial, NegativeBinomial,
 Poisson, UniformDiscrete) and the NegativeBinomial/Poisson `median` return
 `Result` too (the non-convergence safety net is
-`err(DistError.notConverged)`, unreachable for valid parameters).
+`err(DistError.NotConverged)`, unreachable for valid parameters).
 
 ```nim
 import std/results

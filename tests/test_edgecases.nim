@@ -206,7 +206,7 @@ suite "Edge cases":
 
   test "validateNotNaN rejects NaN, accepts Inf":
     let e = validateNotNaN(NaN).error
-    check e == DistError.mustNotBeNaN
+    check e == DistError.MustNotBeNaN
     check $e == "parameter must not be NaN"
     check validateNotNaN(Inf).isOk()
     check validateNotNaN(-Inf).isOk()
@@ -262,15 +262,15 @@ suite "Edge cases":
 
   test "DistError string-enum variant and message (validator)":
     let e = initPoissonDistribution(-1.0).error
-    check e == DistError.mustBePositive
+    check e == DistError.MustBePositive
     check $e == "parameter must be positive"
 
   test "DistError string-enum variant and message (moment)":
     let e = initFDistribution[float64](1, 2).get().mean().error
-    check e == DistError.meanUndefined
+    check e == DistError.MeanUndefined
     check $e == "mean undefined for these parameters"
 
   test "DistError string-enum variant and message (bounds)":
     let e = initUniformContinuousDistribution(1.0, 1.0).error
-    check e == DistError.aMustBeLessThanB
+    check e == DistError.AMustBeLessThanB
     check $e == "a must be < b"

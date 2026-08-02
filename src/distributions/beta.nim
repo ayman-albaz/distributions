@@ -40,9 +40,9 @@ func mode*[T: SomeFloat](d: BetaDistribution[T]): Result[T, DistError] =
   if d.alpha > T(1.0) and d.beta > T(1.0):
     return ok((d.alpha - T(1.0)) / (d.alpha + d.beta - T(2.0)))
   if d.alpha == T(1.0) and d.beta == T(1.0):
-    return err(DistError.modeUndefined)
+    return err(DistError.ModeUndefined)
   if d.alpha < T(1.0) and d.beta < T(1.0):
-    return err(DistError.modeUndefined)
+    return err(DistError.ModeUndefined)
   if d.alpha < T(1.0) and d.beta == T(1.0):
     return ok(T(0.0))
   if d.alpha == T(1.0) and d.beta > T(1.0):
@@ -55,7 +55,7 @@ func mode*[T: SomeFloat](d: BetaDistribution[T]): Result[T, DistError] =
     return ok(T(0.0))
   if d.alpha > T(1.0) and d.beta < T(1.0):
     return ok(T(1.0))
-  err(DistError.modeUndefined)
+  err(DistError.ModeUndefined)
 
 func variance*[T: SomeFloat](d: BetaDistribution[T]): T =
   ## Variance: ``αβ / ((α+β)² (α+β+1))``.

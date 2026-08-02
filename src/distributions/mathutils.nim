@@ -58,7 +58,7 @@ proc discretePpf*[T: SomeFloat](
   ## search in `[start, hi]`: O(log span) cdf evaluations. The doubling
   ## continues through any `NaN` cdf values (treated as "not yet `>= p`"),
   ## so a bounded `NaN` band cannot break the `cdfFn(hi) >= p` invariant.
-  ## Returns `err(DistError.notConverged)` if the doubling search hits the
+  ## Returns `err(DistError.NotConverged)` if the doubling search hits the
   ## `int` range without convergence (unreachable for valid monotone cdfs).
   if cdfFn(start) >= p:
     return ok(start)
@@ -69,7 +69,7 @@ proc discretePpf*[T: SomeFloat](
       if cdfFn(high(int)) >= p:
         hi = high(int)
       else:
-        return err(DistError.notConverged)
+        return err(DistError.NotConverged)
       break
     hi += step
     step =

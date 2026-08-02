@@ -26,7 +26,7 @@ func mean*[T: SomeFloat](d: TDistribution[T]): Result[T, DistError] =
   if d.df > T(1.0):
     ok(T(0.0))
   else:
-    err(DistError.meanUndefined)
+    err(DistError.MeanUndefined)
 
 func median*[T: SomeFloat](d: TDistribution[T]): T =
   ## Median: ``0``.
@@ -39,7 +39,7 @@ func mode*[T: SomeFloat](d: TDistribution[T]): T =
 func variance*[T: SomeFloat](d: TDistribution[T]): Result[T, DistError] =
   ## Variance: ``df / (df-2)`` for ``df > 2``. Returns error for ``df ≤ 2``.
   if d.df <= T(2.0):
-    return err(DistError.varianceUndefined)
+    return err(DistError.VarianceUndefined)
   ok(d.df / (d.df - T(2.0)))
 
 func pdf*[T: SomeFloat](d: TDistribution[T], x: T): T =

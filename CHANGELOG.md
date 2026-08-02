@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.0] — 2026-08-02
 ### Added
 - NaN parameter rejection: every constructor now rejects `NaN` parameters
-  (`mustNotBeNaN`); `Inf` remains accepted (`sigma = Inf` is a valid
+  (`MustNotBeNaN`); `Inf` remains accepted (`sigma = Inf` is a valid
   limiting parameter).
 - New `tests/test_api_surface.nim` pins the documented surface: every field
   of all 12 distributions plus the `ppf(q = ...)` named-argument form.
@@ -29,19 +29,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   object, its dynamic `msg` field, the custom `$` override, and the
   `toDistError` converter are removed. `Result[..., DistError]` signatures
   are unchanged.
-- **Breaking**: `DistError` variants are unprefixed (`mustBePositive`,
-  `mustBeNonNegative`, `mustBeFraction`, `mustNotBeNaN`, `aMustBeLessThanB`,
-  `aMustBeAtMostB`, `meanUndefined`, `modeUndefined`, `varianceUndefined`,
-  `notConverged`). The old `de` prefix is dropped: the `{.pure.}` enum
-  provides the namespace itself, so `DistError.mustBePositive` (or the
-  unqualified `mustBePositive`) needs no extra disambiguation.
+- **Breaking**: `DistError` variants are unprefixed (`MustBePositive`,
+  `MustBeNonNegative`, `MustBeFraction`, `MustNotBeNaN`, `AMustBeLessThanB`,
+  `AMustBeAtMostB`, `MeanUndefined`, `ModeUndefined`, `VarianceUndefined`,
+  `NotConverged`). The old `de` prefix is dropped: the `{.pure.}` enum
+  provides the namespace itself, so `DistError.MustBePositive` (or the
+  unqualified `MustBePositive`) needs no extra disambiguation.
 - **Breaking**: validators (`validatePositive`/`validateNonNegative`/
   `validateFraction`) dropped the `name: static string` parameter; errors
-  are the per-constraint variants (`mustBePositive`,
-  `mustBeNonNegative`, `mustBeFraction`, `mustNotBeNaN`). Inline
-  constructor errors use `aMustBeLessThanB`/`aMustBeAtMostB`;
-  undefined-moment errors use `meanUndefined`/`modeUndefined`/
-  `varianceUndefined`; the discrete-ppf safety net is `notConverged`.
+  are the per-constraint variants (`MustBePositive`,
+  `MustBeNonNegative`, `MustBeFraction`, `MustNotBeNaN`). Inline
+  constructor errors use `AMustBeLessThanB`/`AMustBeAtMostB`;
+  undefined-moment errors use `MeanUndefined`/`ModeUndefined`/
+  `VarianceUndefined`; the discrete-ppf safety net is `NotConverged`.
 - **Breaking**: discrete `ppf` (Binomial, NegativeBinomial, Poisson,
   UniformDiscrete) and the NegativeBinomial/Poisson `median` return
   `Result[int, DistError]` / `Result[T, DistError]`; the non-convergence
@@ -68,7 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `ok(0)`, and UniformDiscrete `ppf(NaN)` returns `ok(a)` — the low clamp,
   matching Bernoulli (the discrete `ppf` returns `int`, so `NaN` has no
   representation). Previously the four search-based `ppf`s reported
-  `err(DistError.notConverged)`.
+  `err(DistError.NotConverged)`.
 - Documentation pass: every distribution type and every public field now
   carries a doc comment (`d.p`, `d.n`, `d.df`, ...); `pmf`/`pdf`/`cdf`/
   `sf`/`ppf` docstrings state their formulas, clamping behavior, and

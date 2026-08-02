@@ -43,7 +43,7 @@ func mode*[T: SomeFloat](d: BernoulliDistribution[T]): Result[T, DistError] =
   elif d.p > T(0.5):
     ok(T(1.0))
   else:
-    err(DistError.modeUndefined)
+    err(DistError.ModeUndefined)
 
 func variance*[T: SomeFloat](d: BernoulliDistribution[T]): T =
   ## Variance: ``p·(1-p)``.

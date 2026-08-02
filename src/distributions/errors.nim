@@ -8,19 +8,19 @@
 ## ``$``/``echo``/``repr`` yield the message directly — there is no
 ## separate ``msg`` field or custom ``$`` override. Diagnostics are
 ## recovered by matching on the variant (e.g. ``case e: of
-## DistError.mustBePositive: ...``), which replaces the former
+## DistError.MustBePositive: ...``), which replaces the former
 ## dynamic ``"X must R Y; got Z"`` message convention.
 
 type DistError* {.pure.} = enum
-  mustBePositive = "parameter must be positive"
-  mustBeNonNegative = "parameter must be non-negative"
-  mustBeFraction = "parameter must be in [0, 1]"
-  mustNotBeNaN = "parameter must not be NaN"
-  aMustBeLessThanB = "a must be < b"
-  aMustBeAtMostB = "a must be <= b"
-  meanUndefined = "mean undefined for these parameters"
-  modeUndefined = "mode undefined for these parameters"
-  varianceUndefined = "variance undefined for these parameters"
-  notConverged = "quantile search failed to converge"
+  MustBePositive = "parameter must be positive"
+  MustBeNonNegative = "parameter must be non-negative"
+  MustBeFraction = "parameter must be in [0, 1]"
+  MustNotBeNaN = "parameter must not be NaN"
+  AMustBeLessThanB = "a must be < b"
+  AMustBeAtMostB = "a must be <= b"
+  MeanUndefined = "mean undefined for these parameters"
+  ModeUndefined = "mode undefined for these parameters"
+  VarianceUndefined = "variance undefined for these parameters"
+  NotConverged = "quantile search failed to converge"
 
 {.pop.}

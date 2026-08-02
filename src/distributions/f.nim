@@ -29,7 +29,7 @@ func initFDistribution*[T: SomeFloat](
 func mean*[T: SomeFloat](d: FDistribution[T]): Result[T, DistError] =
   ## Mean: ``df2 / (df2-2)``. Returns error for ``df2 ≤ 2``.
   if d.df2 <= 2:
-    return err(DistError.meanUndefined)
+    return err(DistError.MeanUndefined)
   ok(T(d.df2) / T(d.df2 - 2))
 
 func median*[T: SomeFloat](d: FDistribution[T]): T =
@@ -39,14 +39,14 @@ func median*[T: SomeFloat](d: FDistribution[T]): T =
 func mode*[T: SomeFloat](d: FDistribution[T]): Result[T, DistError] =
   ## Mode: ``(df1-2)/df1 · df2/(df2+2)``. Returns error for ``df1 ≤ 2``.
   if d.df1 <= 2:
-    return err(DistError.modeUndefined)
+    return err(DistError.ModeUndefined)
   ok((T(d.df1 - 2) / T(d.df1)) * (T(d.df2) / T(d.df2 + 2)))
 
 func variance*[T: SomeFloat](d: FDistribution[T]): Result[T, DistError] =
   ## Variance: ``2·df2²·(df1+df2-2) / (df1·(df2-2)²·(df2-4))``.
   ## Returns error for ``df2 ≤ 4``.
   if d.df2 <= 4:
-    return err(DistError.varianceUndefined)
+    return err(DistError.VarianceUndefined)
   let fd1 = T(d.df1)
   let fd2 = T(d.df2)
   ok(
