@@ -1,5 +1,6 @@
 import std/math
 import std/unittest
+import results
 
 import distributions
 
@@ -7,53 +8,53 @@ suite "BernoulliDistribution":
   const r1 = 12
 
   test "BernoulliDistribution(0.75).mean()":
-    let bernoulli_dist = initBernoulliDistribution(0.75)
+    let bernoulli_dist = initBernoulliDistribution(0.75).get()
     check bernoulli_dist.mean().round(r1) == 0.75.round(r1)
 
   test "BernoulliDistribution(0.75).median()":
-    let bernoulli_dist = initBernoulliDistribution(0.75)
+    let bernoulli_dist = initBernoulliDistribution(0.75).get()
     check bernoulli_dist.median().round(r1) == 1.0.round(r1)
 
   test "BernoulliDistribution(0.75).mode()":
-    let bernoulli_dist = initBernoulliDistribution(0.75)
-    check bernoulli_dist.mode().round(r1) == 1.0.round(r1)
+    let bernoulli_dist = initBernoulliDistribution(0.75).get()
+    check bernoulli_dist.mode().get().round(r1) == 1.0.round(r1)
 
   test "BernoulliDistribution(0.75).variance()":
-    let bernoulli_dist = initBernoulliDistribution(0.75)
+    let bernoulli_dist = initBernoulliDistribution(0.75).get()
     check bernoulli_dist.variance().round(r1) == 0.1875.round(r1)
 
   test "BernoulliDistribution(0.75).pmf(0)":
-    let bernoulli_dist = initBernoulliDistribution(0.75)
+    let bernoulli_dist = initBernoulliDistribution(0.75).get()
     check bernoulli_dist.pmf(0).round(r1) == 0.25.round(r1)
 
   test "BernoulliDistribution(0.75).pmf(1)":
-    let bernoulli_dist = initBernoulliDistribution(0.75)
+    let bernoulli_dist = initBernoulliDistribution(0.75).get()
     check bernoulli_dist.pmf(1).round(r1) == 0.75.round(r1)
 
   test "BernoulliDistribution(0.75).cdf(0)":
-    let bernoulli_dist = initBernoulliDistribution(0.75)
+    let bernoulli_dist = initBernoulliDistribution(0.75).get()
     check bernoulli_dist.cdf(0).round(r1) == 0.25.round(r1)
 
   test "BernoulliDistribution(0.75).cdf(1)":
-    let bernoulli_dist = initBernoulliDistribution(0.75)
+    let bernoulli_dist = initBernoulliDistribution(0.75).get()
     check bernoulli_dist.cdf(1).round(r1) == 1.0.round(r1)
 
   test "BernoulliDistribution(0.75).sf(0)":
-    let bernoulli_dist = initBernoulliDistribution(0.75)
+    let bernoulli_dist = initBernoulliDistribution(0.75).get()
     check bernoulli_dist.sf(0).round(r1) == 0.75.round(r1)
 
   test "BernoulliDistribution(0.75).sf(1)":
-    let bernoulli_dist = initBernoulliDistribution(0.75)
+    let bernoulli_dist = initBernoulliDistribution(0.75).get()
     check bernoulli_dist.sf(1).round(r1) == 0.0.round(r1)
 
   test "BernoulliDistribution(0.75).ppf(0.0)":
-    let bernoulli_dist = initBernoulliDistribution(0.75)
+    let bernoulli_dist = initBernoulliDistribution(0.75).get()
     check bernoulli_dist.ppf(0.0) == 0
 
   test "BernoulliDistribution(0.75).ppf(0.5)":
-    let bernoulli_dist = initBernoulliDistribution(0.75)
+    let bernoulli_dist = initBernoulliDistribution(0.75).get()
     check bernoulli_dist.ppf(0.5) == 1
 
   test "BernoulliDistribution(0.75).ppf(1.0)":
-    let bernoulli_dist = initBernoulliDistribution(0.75)
+    let bernoulli_dist = initBernoulliDistribution(0.75).get()
     check bernoulli_dist.ppf(1.0) == 1

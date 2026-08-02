@@ -1,11 +1,18 @@
 {.experimental: "strictFuncs".}
 {.push raises: [].}
 
+import std/math
+import results
+import distributions/errors
+
 ## Validation helpers and base distribution types.
 ##
-## Validator error messages follow the convention ``"param must be OP VALUE; got X"``
-## for single-valued constraints, or ``"a must be < b; got a=..., b=..."`` for
-## multi-parameter relational constraints in inline constructors.
+## Validators return the static `DistError` variant matching the violated
+## constraint (`DistError.deMustBePositive` / `deMustBeNonNegative` /
+## `deMustBeFraction`, or `DistError.deMustNotBeNaN` for a `NaN` argument);
+## the string value of the variant is the message (see `errors.nim`).
+## Multi-parameter relational constraints use the inline variants
+## (`DistError.deAMustBeLessThanB`, `DistError.deAMustBeAtMostB`).
 ##
 ## The literal ``Inf`` is used without ``T(Inf)`` wrapping — it widens cleanly
 ## to any ``SomeFloat`` return type and is mathematically unambiguous.
@@ -16,16 +23,28 @@ type
   DistributionContinuous* = object of Distribution
   DistributionDiscrete* = object of Distribution
 
-func validatePositive*(name: static string, x: SomeNumber) {.raises: [ValueError].} =
+func validateNotNaN*(x: SomeNumber): Result[void, DistError] =
+  when x is SomeFloat:
+    if isNaN(x):
+      return err(DistError.deMustNotBeNaN)
+  ok()
+
+func validatePositive*(x: SomeNumber): Result[void, DistError] =
+  ?validateNotNaN(x)
   if x <= 0:
-    raise newException(ValueError, name & " must be > 0; got " & $x)
+    return err(DistError.deMustBePositive)
+  ok()
 
-func validateNonNegative*(name: static string, x: SomeNumber) {.raises: [ValueError].} =
+func validateNonNegative*(x: SomeNumber): Result[void, DistError] =
+  ?validateNotNaN(x)
   if x < 0:
-    raise newException(ValueError, name & " must be >= 0; got " & $x)
+    return err(DistError.deMustBeNonNegative)
+  ok()
 
-func validateFraction*(name: static string, x: SomeNumber) {.raises: [ValueError].} =
+func validateFraction*(x: SomeNumber): Result[void, DistError] =
+  ?validateNotNaN(x)
   if x < 0 or x > 1:
-    raise newException(ValueError, name & " must be in [0,1]; got " & $x)
+    return err(DistError.deMustBeFraction)
+  ok()
 
 {.pop.}

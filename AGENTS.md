@@ -23,8 +23,11 @@
   ```
   This enforces exception safety and pure `func` correctness at compile time.
   Any symbol that intentionally raises MUST override it with an explicit
-  `{.raises: [ValueError].}` (or `{.raises: [CatchableError].}` for
-  `std/random`) — otherwise `nim check` rejects it.
+  `{.raises: [ValueError].}` — otherwise `nim check` rejects it. `sample`
+  procs inherit `{.raises: [].}` from the module push (`std/random`'s
+  `gauss`/`rand` do not raise for the ranges used here); any future RNG
+  path that raises must be verified with `nim check` — `[XCannotRaiseY]`
+  hints catch spurious annotations.
 
 ### Logging
 
