@@ -20,7 +20,7 @@ func initUniformDiscreteDistribution*[T: SomeFloat](
   ## Construct a Uniform discrete distribution on `{a, ..., b}`.
   ## Requires `a <= b`.
   if a > b:
-    return err(DistError.deAMustBeAtMostB)
+    return err(DistError.aMustBeAtMostB)
   ok(UniformDiscreteDistribution[T](a: a, b: b))
 
 func mean*[T: SomeFloat](d: UniformDiscreteDistribution[T]): T =
@@ -74,7 +74,7 @@ proc ppf*[T: SomeFloat](
   ## `q <= 0`, `ok(b)` for `q >= 1`. Returns `ok(a)` for a `NaN` argument
   ## (the discrete `ppf` returns `int`, so `NaN` has no representation; the
   ## low clamp is the deterministic convention).
-  ## Returns `err(DistError.deNotConverged)` if the quantile search fails to
+  ## Returns `err(DistError.notConverged)` if the quantile search fails to
   ## converge (unreachable for valid monotone cdfs).
   if isNaN(q) or q <= T(0.0):
     ok(d.a)

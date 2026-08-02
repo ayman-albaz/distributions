@@ -89,7 +89,7 @@ proc ppf*[T: SomeFloat](d: BinomialDistribution[T], q: T): Result[int, DistError
   ## `q >= 1`. Returns `ok(0)` for a `NaN` argument (the discrete `ppf`
   ## returns `int`, so `NaN` has no representation; the low clamp is the
   ## deterministic convention).
-  ## Returns `err(DistError.deNotConverged)` if the quantile search fails to
+  ## Returns `err(DistError.notConverged)` if the quantile search fails to
   ## converge (unreachable for valid monotone cdfs).
   if isNaN(q) or q <= T(0.0):
     ok(0)

@@ -8,11 +8,11 @@ import distributions/errors
 ## Validation helpers and base distribution types.
 ##
 ## Validators return the static `DistError` variant matching the violated
-## constraint (`DistError.deMustBePositive` / `deMustBeNonNegative` /
-## `deMustBeFraction`, or `DistError.deMustNotBeNaN` for a `NaN` argument);
+## constraint (`DistError.mustBePositive` / `mustBeNonNegative` /
+## `mustBeFraction`, or `DistError.mustNotBeNaN` for a `NaN` argument);
 ## the string value of the variant is the message (see `errors.nim`).
 ## Multi-parameter relational constraints use the inline variants
-## (`DistError.deAMustBeLessThanB`, `DistError.deAMustBeAtMostB`).
+## (`DistError.aMustBeLessThanB`, `DistError.aMustBeAtMostB`).
 ##
 ## The literal ``Inf`` is used without ``T(Inf)`` wrapping — it widens cleanly
 ## to any ``SomeFloat`` return type and is mathematically unambiguous.
@@ -26,25 +26,25 @@ type
 func validateNotNaN*(x: SomeNumber): Result[void, DistError] =
   when x is SomeFloat:
     if isNaN(x):
-      return err(DistError.deMustNotBeNaN)
+      return err(DistError.mustNotBeNaN)
   ok()
 
 func validatePositive*(x: SomeNumber): Result[void, DistError] =
   ?validateNotNaN(x)
   if x <= 0:
-    return err(DistError.deMustBePositive)
+    return err(DistError.mustBePositive)
   ok()
 
 func validateNonNegative*(x: SomeNumber): Result[void, DistError] =
   ?validateNotNaN(x)
   if x < 0:
-    return err(DistError.deMustBeNonNegative)
+    return err(DistError.mustBeNonNegative)
   ok()
 
 func validateFraction*(x: SomeNumber): Result[void, DistError] =
   ?validateNotNaN(x)
   if x < 0 or x > 1:
-    return err(DistError.deMustBeFraction)
+    return err(DistError.mustBeFraction)
   ok()
 
 {.pop.}

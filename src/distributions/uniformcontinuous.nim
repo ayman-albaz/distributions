@@ -22,7 +22,7 @@ func initUniformContinuousDistribution*[T: SomeFloat](
   ?validateNotNaN(a)
   ?validateNotNaN(b)
   if a >= b:
-    return err(DistError.deAMustBeLessThanB)
+    return err(DistError.aMustBeLessThanB)
   ok(UniformContinuousDistribution[T](a: a, b: b))
 
 func mean*[T: SomeFloat](d: UniformContinuousDistribution[T]): T =

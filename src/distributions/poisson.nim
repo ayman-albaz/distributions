@@ -29,7 +29,7 @@ func mean*[T: SomeFloat](d: PoissonDistribution[T]): T =
 
 proc median*[T: SomeFloat](d: PoissonDistribution[T]): Result[T, DistError] =
   ## Median is the 0.5-quantile via `discretePpf`.
-  ## Returns `err(DistError.deNotConverged)` if the quantile search fails to
+  ## Returns `err(DistError.notConverged)` if the quantile search fails to
   ## converge (unreachable for valid monotone cdfs).
   d.ppf(T(0.5)).map(
     proc(k: int): T =
@@ -71,7 +71,7 @@ proc ppf*[T: SomeFloat](d: PoissonDistribution[T], q: T): Result[int, DistError]
   ## `ok(0)` for a `NaN` argument (the discrete `ppf` returns `int`, so
   ## `NaN` has no representation; the low clamp is the deterministic
   ## convention).
-  ## Returns `err(DistError.deNotConverged)` if the quantile search fails to
+  ## Returns `err(DistError.notConverged)` if the quantile search fails to
   ## converge (unreachable for valid monotone cdfs).
   if isNaN(q) or q <= T(0.0):
     ok(0)
